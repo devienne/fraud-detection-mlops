@@ -1,0 +1,27 @@
+# --- Environment -----------------------------------------------------------
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+.ruff_cache/
+
+# --- Generated artifacts (rebuilt by the pipeline) --------------------------
+output/
+catboost_info/
+mlruns/
+mlflow.db
+
+# --- Private / non-public material ------------------------------------------
+*.pdf
+# Personal copies and working notes, kept locally only.
+Jose Devienne*
+notes/
+
+# --- OS / editor -------------------------------------------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Raw data is versioned with DVC (see data/raw/*.dvc), not with git.

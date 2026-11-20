@@ -1,0 +1,5 @@
+outs:
+- md5: 837d09e023c78ec8039c0ca2bac29682
+  size: 5698397
+  hash: md5
+  path: transacoes_jan2026.csv

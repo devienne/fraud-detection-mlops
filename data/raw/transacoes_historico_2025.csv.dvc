@@ -1,0 +1,5 @@
+outs:
+- md5: f8e7e28714e3ea924aa440b347ed67ca
+  size: 70237403
+  hash: md5
+  path: transacoes_historico_2025.csv
