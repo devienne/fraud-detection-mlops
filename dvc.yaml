@@ -1,0 +1,80 @@
+# Reproducible pipeline: `dvc repro` runs only the stages whose inputs changed.
+# deps   = code and data a stage reads   | params = params.yaml sections it uses
+# outs   = artifacts it produces (cached by DVC; cache: false -> small file kept in git)
+# metrics = small JSON results kept in git, compared across commits with `dvc metrics diff`
+# Commands use `python`: run `dvc repro` with the project .venv activated.
+
+stages:
+  validate:
+    cmd: python -m fraud_detection.data
+    deps:
+      - src/fraud_detection/config.py
+      - src/fraud_detection/data.py
+      - data/raw/transacoes_historico_2025.csv
+      - data/raw/transacoes_jan2026.csv
+    params:
+      - data
+    outs:
+      - reports/data_validation.json:
+          cache: false
+
+  train:
+    cmd: python -m fraud_detection.train
+    deps:
+      - src/fraud_detection/config.py
+      - src/fraud_detection/data.py
+      - src/fraud_detection/features.py
+      - src/fraud_detection/train.py
+      - data/raw/transacoes_historico_2025.csv
+      - reports/data_validation.json      # runs only after the data contract passed
+    params:
+      - data
+      - features
+      - split
+      - model
+    outs:
+      - models/eval_model.txt
+      - models/final_model.txt
+      - models/training_info.json
+
+  evaluate:
+    cmd: python -m fraud_detection.evaluate
+    deps:
+      - src/fraud_detection/evaluate.py
+      - src/fraud_detection/policy.py
+      - src/fraud_detection/tracking.py
+      - src/fraud_detection/features.py
+      - data/raw/transacoes_historico_2025.csv
+      - models/eval_model.txt
+      - models/final_model.txt
+      - models/training_info.json
+    params:
+      - split
+      - policy
+      - mlflow
+    outs:
+      - models/policy.json
+      - models/metadata.json
+      - reports/pr_curve.png
+    metrics:
+      - reports/metrics.json:
+          cache: false
+
+  predict:
+    cmd: python -m fraud_detection.predict
+    deps:
+      - src/fraud_detection/predict.py
+      - src/fraud_detection/policy.py
+      - src/fraud_detection/features.py
+      - src/fraud_detection/data.py
+      - data/raw/transacoes_jan2026.csv
+      - models/final_model.txt
+      - models/policy.json
+      - models/metadata.json
+    params:
+      - data.scoring_path
+    outs:
+      - data/predictions/transacoes_jan2026_classified.csv
+    metrics:
+      - reports/prediction_summary.json:
+          cache: false

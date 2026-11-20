@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fraud-detection"
+version = "0.2.0"
+description = "Card-transaction fraud detection: reproducible training pipeline, serving and monitoring."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "José Augusto Devienne" }]
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "lightgbm",
+    "matplotlib",
+    "pyyaml",
+    "pydantic>=2",
+    "pandera",
+    "mlflow",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

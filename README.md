@@ -52,19 +52,41 @@ The full analysis is in [notebooks/01_pilot_analysis.ipynb](notebooks/01_pilot_a
 ## Repository layout
 
 ```
+├── params.yaml               # every tunable setting (splits, model, policy, MLflow)
+├── dvc.yaml / dvc.lock       # pipeline definition / exact hashes of the last run
+├── src/fraud_detection/
+│   ├── config.py             # loads and validates params.yaml
+│   ├── data.py               # data contract (pandera) and loaders
+│   ├── features.py           # make_features(): shared by training, batch scoring and serving
+│   ├── train.py              # evaluation model (early stopping) + final model
+│   ├── evaluate.py           # thresholds on validation, metrics on test, model metadata
+│   ├── policy.py             # probability -> risk band / block decision
+│   ├── tracking.py           # MLflow run logging and model registry
+│   └── predict.py            # batch scoring (FraudScorer, reused by the API)
 ├── data/raw/                 # raw CSVs (DVC-tracked; pointers in git)
+├── data/predictions/         # batch predictions (DVC output)
+├── models/                   # model files, policy, metadata (DVC outputs)
+├── reports/                  # data validation, metrics, prediction summary (in git)
 ├── notebooks/
 │   └── 01_pilot_analysis.ipynb
-├── requirements.txt          # pinned dependencies
-└── .dvc/                     # DVC configuration
+└── requirements.txt          # pinned dependencies
 ```
 
-Coming next:
-- `src/` package and `params.yaml`
-- DVC pipeline
-- MLflow tracking
-- FastAPI service, tests and CI
-- Docker, monitoring, retraining
+## Pipeline
+
+```
+validate ──> train ──> evaluate ──> predict
+data         eval model  thresholds   January
+contract     + final     + metrics    classified
+             model       + MLflow
+```
+
+| Stage | Uses | Produces |
+|---|---|---|
+| `validate` | raw CSVs | `reports/data_validation.json` (fails on any contract violation) |
+| `train` | Jan–Sep (early stopping on Oct–Nov); then all 2025 | `models/eval_model.txt`, `models/final_model.txt`, `models/training_info.json` |
+| `evaluate` | Oct–Nov to choose thresholds; December to report | `models/policy.json`, `models/metadata.json`, `reports/metrics.json`, an MLflow run and registered model version |
+| `predict` | final model + policy | `data/predictions/transacoes_jan2026_classified.csv`, `reports/prediction_summary.json` |
 
 ## How to run
 
@@ -74,14 +96,16 @@ Requirements: Python 3.10 and git.
 python -m venv .venv
 .venv\Scripts\activate            # Windows  (Linux/macOS: source .venv/bin/activate)
 pip install -r requirements.txt
+pip install -e .                  # install the fraud_detection package
 
-dvc pull                          # restore the data from DVC storage
-python -m nbconvert --to notebook --execute --inplace notebooks/01_pilot_analysis.ipynb
+dvc pull                          # restore data (and cached models) from DVC storage
+dvc repro                         # run the pipeline; unchanged stages are skipped
+dvc metrics show                  # headline metrics
+mlflow ui --backend-store-uri sqlite:///mlflow.db   # browse runs at http://127.0.0.1:5000
 ```
 
 The DVC storage is currently a local folder configured per machine in `.dvc/config.local`, so `dvc pull` only works on the author's machine.
 A public DVC remote is on the roadmap.
-Outputs are written to `output/`, which is not versioned: `transacoes_jan2026_classified.csv` and figures.
 
 ## Roadmap
 

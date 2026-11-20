@@ -1,0 +1,12 @@
+{
+  "model_version": "20261120-4e87d2b",
+  "rows": 44451,
+  "mean_fraud_probability": 0.04097,
+  "predicted_fraud": 2727,
+  "predicted_fraud_rate": 0.061348,
+  "bands": {
+    "High": 2727,
+    "Medium": 1128,
+    "Low": 40596
+  }
+}

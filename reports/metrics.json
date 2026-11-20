@@ -1,0 +1,48 @@
+{
+  "validation": {
+    "pr_auc": 0.6649174075121214,
+    "roc_auc": 0.9846897649014201
+  },
+  "test": {
+    "pr_auc": 0.6178340047890301,
+    "roc_auc": 0.9405940196001439,
+    "block_rate": 0.05741153179905964,
+    "recall": 0.6275404396515969,
+    "precision": 0.5928683385579937,
+    "fraud_amount": 73434.4,
+    "fraud_amount_prevented": 45870.46,
+    "false_blocks": 1039,
+    "net_benefit": 35480.46,
+    "bands": {
+      "High": {
+        "transactions": 2552,
+        "frauds": 1513,
+        "share_of_transactions": 0.05741153179905964,
+        "share_of_frauds": 0.6275404396515969,
+        "fraud_rate": 0.5928683385579937
+      },
+      "Medium": {
+        "transactions": 1212,
+        "frauds": 331,
+        "share_of_transactions": 0.02726597826820544,
+        "share_of_frauds": 0.13728743260058068,
+        "fraud_rate": 0.2731023102310231
+      },
+      "Low": {
+        "transactions": 40687,
+        "frauds": 567,
+        "share_of_transactions": 0.9153224899327349,
+        "share_of_frauds": 0.23517212774782248,
+        "fraud_rate": 0.013935655123258043
+      }
+    }
+  },
+  "baseline_rule": {
+    "test_pr_auc": 0.30997461305142027,
+    "test_roc_auc": 0.8647307219803304
+  },
+  "policy": {
+    "block_threshold": 0.28,
+    "review_threshold": 0.1525136455545558
+  }
+}

@@ -1,0 +1,43 @@
+# Single source of truth for every tunable setting of the pipeline.
+# DVC tracks the sections each stage uses, so changing a value re-runs only the affected stages.
+
+data:
+  history_path: data/raw/transacoes_historico_2025.csv   # labelled 2025 transactions
+  scoring_path: data/raw/transacoes_jan2026.csv           # unlabelled January 2026 transactions
+  timestamp_col: datahora_transacao
+  target: flag_fraude
+
+features:
+  # Model input columns, in the exact order the model expects (training and serving share it).
+  columns: [hour, tipo_estabelecimento, nome_estabelecimento, cidade, device_type, is_new_device, valor_transacao]
+  categorical: [tipo_estabelecimento, nome_estabelecimento, cidade, device_type]
+
+split:                       # time-based: the model always scores the future
+  train_months: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  validation_months: [10, 11]   # early stopping and threshold selection
+  test_months: [12]             # untouched final evaluation
+
+model:
+  learning_rate: 0.03
+  num_leaves: 15
+  min_child_samples: 500
+  subsample: 0.8
+  subsample_freq: 1
+  colsample_bytree: 0.8
+  reg_lambda: 1.0
+  random_state: 42
+  max_estimators: 3000
+  early_stopping_rounds: 150
+  final_trees_multiplier: 1.2   # more data in the final fit -> ~20% more trees
+  recency_months: [12]          # months up-weighted in the final fit (December drift)
+  recency_weight: 3.0
+
+policy:                      # turns scores into decisions
+  false_block_cost: 10.0     # R$ cost assumed for blocking a legitimate transaction
+  threshold_grid: {start: 0.01, stop: 0.91, step: 0.01}
+  review_recall_target: 0.95 # High + Medium bands must capture this share of validation fraud
+
+mlflow:
+  tracking_uri: sqlite:///mlflow.db
+  experiment: fraud-detection
+  registered_model: fraud-lightgbm

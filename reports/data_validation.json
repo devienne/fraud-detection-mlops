@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "history": {
+    "rows": 523525,
+    "first_timestamp": "2025-01-01 00:00:00",
+    "last_timestamp": "2025-12-31 23:59:00",
+    "missing_values": 0,
+    "fraud_rate": 0.039129
+  },
+  "scoring": {
+    "rows": 44451,
+    "first_timestamp": "2026-01-01 00:00:00",
+    "last_timestamp": "2026-01-31 23:58:00",
+    "missing_values": 0
+  }
+}
