@@ -63,6 +63,12 @@ The full analysis is in [notebooks/01_pilot_analysis.ipynb](notebooks/01_pilot_a
 │   ├── policy.py             # probability -> risk band / block decision
 │   ├── tracking.py           # MLflow run logging and model registry
 │   └── predict.py            # batch scoring (FraudScorer, reused by the API)
+├── api/
+│   ├── schemas.py            # request/response contract (Pydantic)
+│   └── main.py               # FastAPI service: /health, /model-info, /predict, /predict/batch
+├── Dockerfile                # API image (slim, non-root, health check)
+├── requirements-api.txt      # pinned runtime dependencies of the API image
+├── scripts/load_test.py      # latency percentiles and throughput
 ├── data/raw/                 # raw CSVs (DVC-tracked; pointers in git)
 ├── data/predictions/         # batch predictions (DVC output)
 ├── models/                   # model files, policy, metadata (DVC outputs)
@@ -106,6 +112,59 @@ mlflow ui --backend-store-uri sqlite:///mlflow.db   # browse runs at http://127.
 
 The DVC storage is currently a local folder configured per machine in `.dvc/config.local`, so `dvc pull` only works on the author's machine.
 A public DVC remote is on the roadmap.
+
+## Serving: the fraud API
+
+The API scores one transaction, or a batch of up to 1,000, with the final model. It returns:
+- the fraud probability;
+- the risk band;
+- the decision (block, review or approve);
+- the model version.
+
+Every prediction is logged to `logs/predictions.jsonl` for monitoring.
+
+```bash
+# locally (after `dvc repro` or `dvc pull`)
+uvicorn api.main:app --port 8000          # interactive docs: http://127.0.0.1:8000/docs
+
+# in Docker
+docker build -t fraud-api:latest .
+docker run -p 8000:8000 fraud-api:latest
+```
+
+Example request and response:
+
+```bash
+curl -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{
+  "transaction_id": "tx-000123", "datahora_transacao": "2026-01-15T22:14:00",
+  "nome_estabelecimento": "Online Shop 1", "tipo_estabelecimento": "E-commerce",
+  "valor_transacao": 32.90, "cidade": "São Paulo", "device_type": "mobile", "is_new_device": true}'
+```
+```json
+{"transaction_id": "tx-000123", "fraud_probability": 0.796063, "risk_band": "High",
+ "decision": "block", "model_version": "20261120-4e87d2b"}
+```
+
+**The input contract** rejects anything the model was not trained on, returning HTTP 422 with the reason. Examples:
+- amounts that are not positive numbers in reais;
+- `is_new_device` values other than `true` or `false`;
+- unknown merchant or device types.
+
+Timestamps with a time zone, such as UTC, are converted to Brazil time, which is how the model was trained. New merchants and cities are accepted and scored as unknown.
+
+**Latency**, measured with `python scripts/load_test.py`, Docker, 1 worker, 1,000 real January transactions:
+
+| Mode | p50 | p95 | p99 | Throughput |
+|---|---|---|---|---|
+| Single requests, 1 client | 19 ms | 27 ms | 48 ms | 48 tx/s |
+| Single requests, 8 concurrent clients | 153 ms | 234 ms | 307 ms | 51 tx/s |
+| Batches of 100, 1 client | 26 ms per batch | 30 ms | 30 ms | 3,700 tx/s |
+
+A single check is well inside a real-time budget such as 700 ms.
+
+Under concurrent load, requests queue behind one worker, and most of the cost is per-request overhead, not the model. The next levers would be:
+- more workers or replicas;
+- building single-row features without pandas.
 
 ## Roadmap
 

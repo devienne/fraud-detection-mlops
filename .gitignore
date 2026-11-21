@@ -12,6 +12,7 @@ output/
 catboost_info/
 mlruns/
 mlflow.db
+logs/
 
 # --- Private / non-public material ------------------------------------------
 *.pdf

@@ -1,0 +1,10 @@
+# Allow-list: send Docker ONLY what the API image needs; everything else is excluded.
+*
+!requirements-api.txt
+!src/
+!api/
+!models/final_model.txt
+!models/metadata.json
+!models/policy.json
+**/__pycache__
+**/*.egg-info

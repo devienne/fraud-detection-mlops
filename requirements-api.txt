@@ -1,0 +1,12 @@
+# Runtime dependencies of the fraud API container only (Linux-friendly, pinned).
+# The full development environment lives in requirements.txt.
+fastapi==0.162.5
+uvicorn==0.54.0
+pydantic==2.14.4
+lightgbm==4.7.0
+scipy==1.15.3
+numpy==2.2.6
+pandas==2.3.3
+pandera==0.36.0
+PyYAML==6.0.3
+tzdata==2026.6

@@ -19,6 +19,9 @@ dependencies = [
     "pydantic>=2",
     "pandera",
     "mlflow",
+    "fastapi",
+    "uvicorn",
+    "httpx",
 ]
 
 [tool.setuptools.packages.find]
