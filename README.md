@@ -1,5 +1,7 @@
 # Fraud Detection: from pilot notebook to production-style MLOps
 
+[![CI](https://github.com/devienne/fraud-detection-mlops/actions/workflows/ci.yml/badge.svg)](https://github.com/devienne/fraud-detection-mlops/actions/workflows/ci.yml)
+
 A machine learning system that classifies card transactions as fraudulent or legitimate. It routes each transaction to **approve**, **manual review** or **block**.
 
 The project started as an exploratory notebook, the **pilot**. It is being extended step by step into a production-style service with:
@@ -142,7 +144,7 @@ curl -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" -
 ```
 ```json
 {"transaction_id": "tx-000123", "fraud_probability": 0.796063, "risk_band": "High",
- "decision": "block", "model_version": "20261120-4e87d2b"}
+ "decision": "block", "model_version": "20261121-623d6d0"}
 ```
 
 **The input contract** rejects anything the model was not trained on, returning HTTP 422 with the reason. Examples:
@@ -165,6 +167,34 @@ A single check is well inside a real-time budget such as 700 ms.
 Under concurrent load, requests queue behind one worker, and most of the cost is per-request overhead, not the model. The next levers would be:
 - more workers or replicas;
 - building single-row features without pandas.
+
+## Testing & CI
+
+```bash
+pip install -r requirements-dev.txt
+pytest                 # all tests (model tests run only where the DVC data/model exist)
+pytest -m "not model"  # code tests only, as on CI
+pre-commit install     # run the checks automatically on every `git commit`
+```
+
+| Test file | What it protects |
+|---|---|
+| `tests/test_features.py` | **Train/serve parity.** Training and the API build identical features. Category codes never depend on the batch. Unseen values become missing. Booleans are strict. UTC is converted. |
+| `tests/test_data_contract.py` | **The data contract** catches each kind of bad data, plus implausible fraud rates. **Consistency:** the training contract (pandera) and the API contract (Pydantic) accept and reject exactly the same values. |
+| `tests/test_api.py` | **Service behaviour,** using a tiny fixture model in production format: health, model info, consistent decisions, 422 on invalid input, batch limits, API scores equal batch scores, every prediction logged, and refusal to start without a model. |
+| `tests/test_model_quality.py` | **Model quality gate** (`model` marker). It checks the test month against `params.yaml` → `quality_gate`: PR-AUC ≥ 0.60, ≥ 1.5× the rule baseline, recall ≥ 50%, precision ≥ 40%. A model with no skill must be rejected. |
+
+**pre-commit hooks** run before every commit:
+- ruff, the linter;
+- a block on files over 1 MB, such as data or models;
+- YAML, JSON and TOML validity;
+- whitespace checks.
+
+**GitHub Actions** (`.github/workflows/ci.yml`) runs on every push:
+1. **Lint and test:** pre-commit plus pytest. Model tests are skipped, because DVC data isn't available on CI.
+2. **Docker:** build the image with a tiny test model, start it, wait until healthy, then smoke-test it. The test confirms a non-root user, a valid prediction, and HTTP 422 on invalid input.
+
+Model lineage: `models/metadata.json` records the git commit the model was trained from. It's flagged `-dirty` only when *source* files were uncommitted, not the pipeline's own outputs.
 
 ## Roadmap
 

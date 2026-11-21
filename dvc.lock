@@ -13,12 +13,12 @@ stages:
       size: 5698397
     - path: src/fraud_detection/config.py
       hash: md5
-      md5: 4e70d48a7d0789b000938fee61c1456e
-      size: 4355
+      md5: ce9f80baccd1844603b4c5e4d64f77c7
+      size: 4815
     - path: src/fraud_detection/data.py
       hash: md5
-      md5: 26193ed05b1f43208d416a77dea20633
-      size: 4481
+      md5: 26e744a33c443e9143257b2fa1a5f3b4
+      size: 4818
     params:
       params.yaml:
         data:
@@ -44,20 +44,20 @@ stages:
       size: 376
     - path: src/fraud_detection/config.py
       hash: md5
-      md5: 4e70d48a7d0789b000938fee61c1456e
-      size: 4355
+      md5: ce9f80baccd1844603b4c5e4d64f77c7
+      size: 4815
     - path: src/fraud_detection/data.py
       hash: md5
-      md5: 26193ed05b1f43208d416a77dea20633
-      size: 4481
+      md5: 26e744a33c443e9143257b2fa1a5f3b4
+      size: 4818
     - path: src/fraud_detection/features.py
       hash: md5
       md5: c986ee6cc096f8cba5b847f8117e84d4
       size: 2452
     - path: src/fraud_detection/train.py
       hash: md5
-      md5: 0a1dc4b92749eee730d4ccc6a29931b7
-      size: 5520
+      md5: 83982009e50db4b8e8582290bb8e51cb
+      size: 5971
     params:
       params.yaml:
         data:
@@ -121,8 +121,8 @@ stages:
       size: 494781
     - path: models/training_info.json
       hash: md5
-      md5: a308273ae9fcb56506c1e7d01d605b1c
-      size: 2339
+      md5: b7b897cb6cc554d2990f6bd4ab1974b1
+      size: 2333
   evaluate:
     cmd: python -m fraud_detection.evaluate
     deps:
@@ -140,12 +140,12 @@ stages:
       size: 494781
     - path: models/training_info.json
       hash: md5
-      md5: a308273ae9fcb56506c1e7d01d605b1c
-      size: 2339
+      md5: b7b897cb6cc554d2990f6bd4ab1974b1
+      size: 2333
     - path: src/fraud_detection/evaluate.py
       hash: md5
-      md5: ce68666059f0a729c08ae924686b091e
-      size: 9915
+      md5: babef46a03f8d3514d6dd0c336c56771
+      size: 10250
     - path: src/fraud_detection/features.py
       hash: md5
       md5: c986ee6cc096f8cba5b847f8117e84d4
@@ -156,8 +156,8 @@ stages:
       size: 1922
     - path: src/fraud_detection/tracking.py
       hash: md5
-      md5: 63885b93201bd2bdb74f46f6ac71f9b1
-      size: 3842
+      md5: 74126b3868d6c23c5db55b14372ff6dd
+      size: 3948
     params:
       params.yaml:
         mlflow:
@@ -190,8 +190,8 @@ stages:
     outs:
     - path: models/metadata.json
       hash: md5
-      md5: dc38e4f4f28219ad078e956f6d013505
-      size: 2746
+      md5: b147c056388731dd639eb556a1a4861a
+      size: 2740
     - path: models/policy.json
       hash: md5
       md5: 9da7a6cc55b97f261c77701a87e70917
@@ -217,16 +217,16 @@ stages:
       size: 494781
     - path: models/metadata.json
       hash: md5
-      md5: dc38e4f4f28219ad078e956f6d013505
-      size: 2746
+      md5: b147c056388731dd639eb556a1a4861a
+      size: 2740
     - path: models/policy.json
       hash: md5
       md5: 9da7a6cc55b97f261c77701a87e70917
       size: 182
     - path: src/fraud_detection/data.py
       hash: md5
-      md5: 26193ed05b1f43208d416a77dea20633
-      size: 4481
+      md5: 26e744a33c443e9143257b2fa1a5f3b4
+      size: 4818
     - path: src/fraud_detection/features.py
       hash: md5
       md5: c986ee6cc096f8cba5b847f8117e84d4
@@ -237,17 +237,17 @@ stages:
       size: 1922
     - path: src/fraud_detection/predict.py
       hash: md5
-      md5: ddd611152e72d64c85a6ac09d6f8f2eb
-      size: 3480
+      md5: cf32496cbc5968fd8916c42af3e7145b
+      size: 3595
     params:
       params.yaml:
         data.scoring_path: data/raw/transacoes_jan2026.csv
     outs:
     - path: data/predictions/transacoes_jan2026_classified.csv
       hash: md5
-      md5: 25c37462531eeda11c53ac7ece360c94
+      md5: 3dc6da4da71ebf67935065f9fad4e15f
       size: 7291737
     - path: reports/prediction_summary.json
       hash: md5
-      md5: c0dffa73123eb43ac71c62e224f1d6a8
+      md5: 34e2cb465cfa6835cf8308fcd323a941
       size: 242
