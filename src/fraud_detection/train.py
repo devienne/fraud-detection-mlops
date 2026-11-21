@@ -50,11 +50,17 @@ def recency_weights(df: pd.DataFrame, params: Params) -> np.ndarray:
     return np.where(month.isin(params.model.recency_months), params.model.recency_weight, 1.0)
 
 
+# Files the pipeline itself writes: their changes do not make the *code* uncommitted.
+PIPELINE_OUTPUTS = ["dvc.lock", "reports", "models", "data/predictions"]
+
+
 def git_commit() -> str:
-    """Current commit, with '-dirty' when there are uncommitted changes (lineage of the model)."""
+    """Current commit, with '-dirty' when source files have uncommitted changes (lineage of the model)."""
     try:
         sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=PROJECT_ROOT, text=True).strip()
-        dirty = subprocess.check_output(["git", "status", "--porcelain"], cwd=PROJECT_ROOT, text=True).strip()
+        exclude = [f":(exclude){p}" for p in PIPELINE_OUTPUTS]
+        dirty = subprocess.check_output(["git", "status", "--porcelain", "--", ".", *exclude],
+                                        cwd=PROJECT_ROOT, text=True).strip()
         return sha + ("-dirty" if dirty else "")
     except (OSError, subprocess.CalledProcessError):
         return "unknown"
