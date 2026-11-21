@@ -20,6 +20,11 @@ DEVICE_TYPES = ["desktop", "mobile", "tablet"]
 SHIFTS = ["madrugada", "manha", "tarde", "noite"]
 AMOUNT_BUCKETS = ["baixo", "medio", "alto"]
 
+# Transaction amount in reais: strictly above AMOUNT_MIN, at most AMOUNT_MAX.
+# Shared with the API contract (api/schemas.py) so training and serving accept the same amounts.
+AMOUNT_MIN = 0.0
+AMOUNT_MAX = 100_000.0
+
 # Contract shared by the labelled history and the unlabelled scoring file.
 # Business enums (merchant type, device) are strict; free-text dimensions (merchant name, city)
 # only need to be present, because new merchants and cities legitimately appear in production.
@@ -27,7 +32,7 @@ _BASE_COLUMNS = {
     "datahora_transacao": pa.Column("datetime64[ns]", nullable=False),
     "nome_estabelecimento": pa.Column(str, nullable=False),
     "tipo_estabelecimento": pa.Column(str, pa.Check.isin(MERCHANT_TYPES), nullable=False),
-    "valor_transacao": pa.Column(float, [pa.Check.gt(0), pa.Check.le(100_000)], nullable=False),
+    "valor_transacao": pa.Column(float, [pa.Check.gt(AMOUNT_MIN), pa.Check.le(AMOUNT_MAX)], nullable=False),
     "nome_cliente": pa.Column(str, nullable=False),
     "cidade": pa.Column(str, nullable=False),
     "device_type": pa.Column(str, pa.Check.isin(DEVICE_TYPES), nullable=False),

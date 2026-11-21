@@ -97,14 +97,14 @@ def _score(transactions: list[Transaction], endpoint: str) -> list[FraudScore]:
             decision=ACTIONS[s.risk_band],
             model_version=s.model_version,
         )
-        for t, s in zip(transactions, scored.itertuples(index=False))
+        for t, s in zip(transactions, scored.itertuples(index=False), strict=True)
     ]
 
     logged_at = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
     state["logger"].write([
         {"logged_at": logged_at, "endpoint": endpoint, "latency_ms": round(latency_ms, 3),
          "inputs": t.model_dump(mode="json"), **r.model_dump()}
-        for t, r in zip(transactions, results)
+        for t, r in zip(transactions, results, strict=True)
     ])
     return results
 

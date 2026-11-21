@@ -1,0 +1,82 @@
+# Continuous integration: runs on GitHub's Linux machines for every push and pull request.
+#   1. lint-and-test : pre-commit checks (ruff + file checks) and the pytest suite
+#                      (model-quality tests are skipped: the real data/model live in DVC, not on CI)
+#   2. docker        : build the API image with a tiny TEST model, start it, and send real requests
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:                       # a newer push cancels the older run of the same branch
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint (pre-commit hooks, incl. ruff)
+        run: pre-commit run --all-files --show-diff-on-failure
+
+      - name: Tests
+        run: pytest -v
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: lint-and-test           # only build the image if lint and tests passed
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Create a test model (the real one is not available on CI)
+        run: python scripts/make_test_model.py models
+
+      - name: Build image
+        run: docker build -t fraud-api:ci .
+
+      - name: Start container and wait until healthy
+        run: |
+          docker run -d --name api -p 8000:8000 fraud-api:ci
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8000/health; then echo; echo "healthy after ${i}s"; exit 0; fi
+            sleep 1
+          done
+          echo "API did not become healthy"; docker logs api; exit 1
+
+      - name: Smoke test (runs as non-root, valid prediction, invalid request rejected)
+        run: |
+          test "$(docker exec api whoami)" = "appuser"
+          curl -sf -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" \
+            -d '{"transaction_id":"ci-1","datahora_transacao":"2026-01-15T22:14:00","nome_estabelecimento":"Online Shop 1","tipo_estabelecimento":"E-commerce","valor_transacao":32.9,"cidade":"São Paulo","device_type":"mobile","is_new_device":true}' \
+            | tee response.json
+          echo
+          grep -q '"model_version":"test-0001"' response.json
+          code=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:8000/predict \
+            -H "Content-Type: application/json" -d '{"transaction_id":"ci-2","is_new_device":"yes"}')
+          test "$code" = "422"
+          echo "smoke test passed"
+
+      - name: Container logs (on failure)
+        if: failure()
+        run: docker logs api || true

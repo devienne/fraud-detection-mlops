@@ -20,8 +20,14 @@ import pandas as pd
 from sklearn.metrics import average_precision_score, precision_recall_curve, roc_auc_score
 
 from fraud_detection.config import (
-    EVAL_MODEL_PATH, FINAL_MODEL_PATH, METADATA_PATH, POLICY_PATH, REPORTS_DIR, TRAINING_INFO_PATH,
-    Params, load_params,
+    EVAL_MODEL_PATH,
+    FINAL_MODEL_PATH,
+    METADATA_PATH,
+    POLICY_PATH,
+    REPORTS_DIR,
+    TRAINING_INFO_PATH,
+    Params,
+    load_params,
 )
 from fraud_detection.data import load_history
 from fraud_detection.features import make_features
@@ -81,7 +87,8 @@ def rule_baseline(history: pd.DataFrame, masks: dict, params: Params) -> np.ndar
     """Analyst-style baseline: training fraud rate of each (merchant type, hour) cell."""
     hour = history[params.data.timestamp_col].dt.hour
     key = pd.MultiIndex.from_arrays([history["tipo_estabelecimento"], hour])
-    cell_rate = history[masks["train"]].groupby(["tipo_estabelecimento", hour[masks["train"]]])[params.data.target].mean()
+    train = history[masks["train"]]
+    cell_rate = train.groupby(["tipo_estabelecimento", hour[masks["train"]]])[params.data.target].mean()
     return key.map(cell_rate).fillna(0).to_numpy()
 
 
@@ -93,7 +100,10 @@ def plot_pr_curve(y, model_probs, baseline_probs, path) -> None:
     ax.axhline(y.mean(), color="#c3c2b7", ls="--", lw=1)
     ax.set(xlabel="Recall: share of fraud caught", ylabel="Precision: share of blocks that are fraud",
            title="Test month: precision-recall", ylim=(0, 1.02))
-    ax.legend(); fig.tight_layout(); fig.savefig(path, dpi=150); plt.close(fig)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
 
 
 def evaluate(params: Params) -> dict:
@@ -105,7 +115,8 @@ def evaluate(params: Params) -> dict:
     va, te = masks["validation"], masks["test"]
 
     model = lgb.Booster(model_file=str(EVAL_MODEL_PATH))
-    X = make_features(history, info["eval_model"]["category_levels"], info["feature_columns"], params.data.timestamp_col)
+    X = make_features(history, info["eval_model"]["category_levels"], info["feature_columns"],
+                      params.data.timestamp_col)
     probs = model.predict(X)
 
     # --- Decisions: thresholds chosen on the VALIDATION months only
@@ -121,7 +132,8 @@ def evaluate(params: Params) -> dict:
     # --- Reporting: everything measured on the TEST month only
     baseline = rule_baseline(history, masks, params)
     metrics = {
-        "validation": {"pr_auc": average_precision_score(y[va], probs[va]), "roc_auc": roc_auc_score(y[va], probs[va])},
+        "validation": {"pr_auc": average_precision_score(y[va], probs[va]),
+                       "roc_auc": roc_auc_score(y[va], probs[va])},
         "test": {
             "pr_auc": average_precision_score(y[te], probs[te]),
             "roc_auc": roc_auc_score(y[te], probs[te]),
@@ -200,7 +212,8 @@ def main() -> None:
     print(f"Thresholds (chosen on validation): block {m['policy']['block_threshold']:.2f}, "
           f"review {m['policy']['review_threshold']:.3f}")
     print(f"Validation PR-AUC {m['validation']['pr_auc']:.4f}  (optimistic: used for decisions)")
-    print(f"Test PR-AUC {t['pr_auc']:.4f} | ROC-AUC {t['roc_auc']:.4f} | rule baseline PR-AUC {m['baseline_rule']['test_pr_auc']:.4f}")
+    print(f"Test PR-AUC {t['pr_auc']:.4f} | ROC-AUC {t['roc_auc']:.4f} | "
+          f"rule baseline PR-AUC {m['baseline_rule']['test_pr_auc']:.4f}")
     print(f"Test at block threshold: recall {t['recall']:.1%}, precision {t['precision']:.1%}, "
           f"net benefit R$ {t['net_benefit']:,.2f}")
     for b, s in t["bands"].items():

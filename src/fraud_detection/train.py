@@ -23,7 +23,13 @@ import pandas as pd
 import yaml
 
 from fraud_detection.config import (
-    EVAL_MODEL_PATH, FINAL_MODEL_PATH, MODELS_DIR, PROJECT_ROOT, TRAINING_INFO_PATH, Params, load_params,
+    EVAL_MODEL_PATH,
+    FINAL_MODEL_PATH,
+    MODELS_DIR,
+    PROJECT_ROOT,
+    TRAINING_INFO_PATH,
+    Params,
+    load_params,
 )
 from fraud_detection.data import load_history
 from fraud_detection.features import fit_category_levels, make_features

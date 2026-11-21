@@ -26,3 +26,25 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+extend-exclude = ["notebooks"]     # the pilot notebook is kept as an exploration record
+
+[tool.ruff.lint]
+# E/W: style errors, F: real bugs (undefined names, unused imports...), I: import order,
+# B: likely bugs (bugbear), UP: modern Python syntax, SIM: simplifications
+select = ["E", "W", "F", "I", "B", "UP", "SIM"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["fraud_detection", "api"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "src"]          # import `api` and `fraud_detection` without installing
+addopts = "-ra"                    # summarise skipped tests and their reasons
+markers = [
+    "model: needs the real data and trained model (DVC); skipped automatically when they are missing",
+]
+filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]

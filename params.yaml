@@ -37,6 +37,12 @@ policy:                      # turns scores into decisions
   threshold_grid: {start: 0.01, stop: 0.91, step: 0.01}
   review_recall_target: 0.95 # High + Medium bands must capture this share of validation fraud
 
+quality_gate:               # minimum standard a model must meet on the test month to be released
+  min_test_pr_auc: 0.60      # current model: 0.618
+  min_lift_over_rule: 1.5    # test PR-AUC must be >= 1.5x the rule baseline's (current: 2.0x)
+  min_recall_at_block: 0.50  # share of test fraud blocked (current: 0.63)
+  min_precision_at_block: 0.40  # share of blocks that are real fraud (current: 0.59)
+
 mlflow:
   tracking_uri: sqlite:///mlflow.db
   experiment: fraud-detection

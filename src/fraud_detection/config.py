@@ -51,7 +51,9 @@ class SplitConfig(BaseModel):
         sets = [set(self.train_months), set(self.validation_months), set(self.test_months)]
         if any(a & b for i, a in enumerate(sets) for b in sets[i + 1 :]):
             raise ValueError("train, validation and test months must not overlap")
-        if max(self.train_months) >= min(self.validation_months) or max(self.validation_months) >= min(self.test_months):
+        in_order = (max(self.train_months) < min(self.validation_months)
+                    and max(self.validation_months) < min(self.test_months))
+        if not in_order:
             raise ValueError("splits must be in time order: train < validation < test")
         return self
 
@@ -93,6 +95,13 @@ class PolicyConfig(BaseModel):
     review_recall_target: float = Field(gt=0, lt=1)
 
 
+class QualityGateConfig(BaseModel):
+    min_test_pr_auc: float = Field(gt=0, lt=1)
+    min_lift_over_rule: float = Field(ge=1)
+    min_recall_at_block: float = Field(gt=0, lt=1)
+    min_precision_at_block: float = Field(gt=0, lt=1)
+
+
 class MlflowConfig(BaseModel):
     tracking_uri: str
     experiment: str
@@ -114,6 +123,7 @@ class Params(BaseModel):
     split: SplitConfig
     model: ModelConfig
     policy: PolicyConfig
+    quality_gate: QualityGateConfig
     mlflow: MlflowConfig
 
     def path(self, relative: Path) -> Path:

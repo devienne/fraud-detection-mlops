@@ -1,0 +1,14 @@
+# Development and CI dependencies (Linux-friendly, pinned).
+# = the API runtime + what the pipeline code and the tests need + quality tools.
+# The full local environment (Jupyter, MLflow UI, DVC, Windows-only packages) is in requirements.txt.
+-r requirements-api.txt
+
+# pipeline code imported by the tests
+scikit-learn==1.7.2
+matplotlib==3.10.9
+
+# tests and quality
+pytest==9.2.0
+httpx==0.28.1
+ruff==0.17.6
+pre-commit==4.6.2

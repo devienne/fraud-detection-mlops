@@ -18,7 +18,12 @@ import pandas as pd
 from mlflow.models import infer_signature
 
 from fraud_detection.config import (
-    FINAL_MODEL_PATH, METADATA_PATH, POLICY_PATH, PROJECT_ROOT, REPORTS_DIR, Params,
+    FINAL_MODEL_PATH,
+    METADATA_PATH,
+    POLICY_PATH,
+    PROJECT_ROOT,
+    REPORTS_DIR,
+    Params,
 )
 
 

@@ -13,7 +13,7 @@ from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
 
-from fraud_detection.data import DEVICE_TYPES, MERCHANT_TYPES
+from fraud_detection.data import AMOUNT_MAX, AMOUNT_MIN, DEVICE_TYPES, MERCHANT_TYPES
 
 TRAINING_TIMEZONE = ZoneInfo("America/Sao_Paulo")   # training timestamps are local Brazil time
 MAX_BATCH_SIZE = 1000
@@ -46,8 +46,9 @@ class Transaction(BaseModel):
                     "timestamps with a time zone (e.g. UTC '...Z') are converted to Brazil time.")
     nome_estabelecimento: str = Field(min_length=1, max_length=100, description="Merchant name; new merchants allowed.")
     tipo_estabelecimento: MerchantType = Field(description="Merchant type; must be one of the known types.")
-    valor_transacao: float = Field(gt=0, le=100_000, strict=True, allow_inf_nan=False,
-                                   description="Amount in REAIS (e.g. 32.90), as a JSON number - never cents, never text.")
+    valor_transacao: float = Field(
+        gt=AMOUNT_MIN, le=AMOUNT_MAX, strict=True, allow_inf_nan=False,
+        description="Amount in REAIS (e.g. 32.90), as a JSON number - never cents, never text.")
     cidade: str = Field(min_length=1, max_length=100, description="City; new cities allowed (scored as unknown).")
     device_type: DeviceType = Field(description="Device used for the transaction.")
     is_new_device: StrictBool = Field(description="True/False only; 'yes', 1 or 'true' as text are rejected.")
