@@ -12,7 +12,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))          # make `tests` importable
+# Make `tests` (project root) and `fraud_detection` (src/) importable without installing the package,
+# exactly as on a fresh CI machine.
+ROOT = Path(__file__).resolve().parents[1]
+sys.path[:0] = [str(ROOT), str(ROOT / "src")]
 
 from tests.model_fixture import build_test_model  # noqa: E402
 
