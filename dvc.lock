@@ -13,8 +13,8 @@ stages:
       size: 5698397
     - path: src/fraud_detection/config.py
       hash: md5
-      md5: ce9f80baccd1844603b4c5e4d64f77c7
-      size: 4815
+      md5: f5c762b496fd1ebb07c99db800dc7a2a
+      size: 6509
     - path: src/fraud_detection/data.py
       hash: md5
       md5: 26e744a33c443e9143257b2fa1a5f3b4
@@ -44,8 +44,8 @@ stages:
       size: 376
     - path: src/fraud_detection/config.py
       hash: md5
-      md5: ce9f80baccd1844603b4c5e4d64f77c7
-      size: 4815
+      md5: f5c762b496fd1ebb07c99db800dc7a2a
+      size: 6509
     - path: src/fraud_detection/data.py
       hash: md5
       md5: 26e744a33c443e9143257b2fa1a5f3b4
@@ -121,8 +121,8 @@ stages:
       size: 494781
     - path: models/training_info.json
       hash: md5
-      md5: b7b897cb6cc554d2990f6bd4ab1974b1
-      size: 2333
+      md5: 588a4bed69719f9248a36faa685cd9ea
+      size: 2339
   evaluate:
     cmd: python -m fraud_detection.evaluate
     deps:
@@ -140,8 +140,8 @@ stages:
       size: 494781
     - path: models/training_info.json
       hash: md5
-      md5: b7b897cb6cc554d2990f6bd4ab1974b1
-      size: 2333
+      md5: 588a4bed69719f9248a36faa685cd9ea
+      size: 2339
     - path: src/fraud_detection/evaluate.py
       hash: md5
       md5: babef46a03f8d3514d6dd0c336c56771
@@ -190,8 +190,8 @@ stages:
     outs:
     - path: models/metadata.json
       hash: md5
-      md5: b147c056388731dd639eb556a1a4861a
-      size: 2740
+      md5: f6514c2cb7af0a63dd43fccce7761205
+      size: 2746
     - path: models/policy.json
       hash: md5
       md5: 9da7a6cc55b97f261c77701a87e70917
@@ -217,8 +217,8 @@ stages:
       size: 494781
     - path: models/metadata.json
       hash: md5
-      md5: b147c056388731dd639eb556a1a4861a
-      size: 2740
+      md5: f6514c2cb7af0a63dd43fccce7761205
+      size: 2746
     - path: models/policy.json
       hash: md5
       md5: 9da7a6cc55b97f261c77701a87e70917
@@ -245,9 +245,161 @@ stages:
     outs:
     - path: data/predictions/transacoes_jan2026_classified.csv
       hash: md5
-      md5: 3dc6da4da71ebf67935065f9fad4e15f
+      md5: d42287a5eb8455c6b2ce89d0ef225914
       size: 7291737
     - path: reports/prediction_summary.json
       hash: md5
-      md5: 34e2cb465cfa6835cf8308fcd323a941
+      md5: d715286c4488971b1d67d00d4b894f8f
       size: 242
+  reference:
+    cmd: python -m fraud_detection.monitoring reference
+    deps:
+    - path: data/raw/transacoes_historico_2025.csv
+      hash: md5
+      md5: f8e7e28714e3ea924aa440b347ed67ca
+      size: 70237403
+    - path: models/eval_model.txt
+      hash: md5
+      md5: af73aa03f05745489251cb6ebd26e5d4
+      size: 412264
+    - path: models/final_model.txt
+      hash: md5
+      md5: 1f6d46660a1dee7d3e1ec8c3c1b5245d
+      size: 494781
+    - path: models/metadata.json
+      hash: md5
+      md5: f6514c2cb7af0a63dd43fccce7761205
+      size: 2746
+    - path: models/policy.json
+      hash: md5
+      md5: 9da7a6cc55b97f261c77701a87e70917
+      size: 182
+    - path: models/training_info.json
+      hash: md5
+      md5: 588a4bed69719f9248a36faa685cd9ea
+      size: 2339
+    - path: src/fraud_detection/features.py
+      hash: md5
+      md5: c986ee6cc096f8cba5b847f8117e84d4
+      size: 2452
+    - path: src/fraud_detection/monitoring.py
+      hash: md5
+      md5: 46147bf156d30f2b431619b80ba787f4
+      size: 30970
+    - path: src/fraud_detection/predict.py
+      hash: md5
+      md5: cf32496cbc5968fd8916c42af3e7145b
+      size: 3595
+    params:
+      params.yaml:
+        features:
+          columns:
+          - hour
+          - tipo_estabelecimento
+          - nome_estabelecimento
+          - cidade
+          - device_type
+          - is_new_device
+          - valor_transacao
+          categorical:
+          - tipo_estabelecimento
+          - nome_estabelecimento
+          - cidade
+          - device_type
+        monitoring:
+          numeric_bins: 10
+          top_categories: 20
+          psi_warn: 0.1
+          psi_alert: 0.25
+          score_percentiles:
+          - 0.5
+          - 0.9
+          - 0.95
+          - 0.99
+          segments:
+          - tipo_estabelecimento
+          - device_type
+          - cidade
+          - hour
+          label_maturity_days: 30
+          min_segment_frauds: 30
+          max_pr_auc_drop: 0.1
+          max_recall_drop: 0.1
+          max_fraud_share_shift: 0.15
+        split:
+          train_months:
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          - 7
+          - 8
+          - 9
+          validation_months:
+          - 10
+          - 11
+          test_months:
+          - 12
+    outs:
+    - path: models/reference.json
+      hash: md5
+      md5: 8b7efcd14b8909f3456d817c1e0a7ea3
+      size: 12400
+  monitor:
+    cmd: python -m fraud_detection.monitoring run --window 
+      data/raw/transacoes_jan2026.csv --report reports/monitoring_jan2026.json 
+      --no-heartbeat
+    deps:
+    - path: data/raw/transacoes_jan2026.csv
+      hash: md5
+      md5: 837d09e023c78ec8039c0ca2bac29682
+      size: 5698397
+    - path: models/final_model.txt
+      hash: md5
+      md5: 1f6d46660a1dee7d3e1ec8c3c1b5245d
+      size: 494781
+    - path: models/metadata.json
+      hash: md5
+      md5: f6514c2cb7af0a63dd43fccce7761205
+      size: 2746
+    - path: models/policy.json
+      hash: md5
+      md5: 9da7a6cc55b97f261c77701a87e70917
+      size: 182
+    - path: models/reference.json
+      hash: md5
+      md5: 8b7efcd14b8909f3456d817c1e0a7ea3
+      size: 12400
+    - path: src/fraud_detection/monitoring.py
+      hash: md5
+      md5: 46147bf156d30f2b431619b80ba787f4
+      size: 30970
+    params:
+      params.yaml:
+        monitoring:
+          numeric_bins: 10
+          top_categories: 20
+          psi_warn: 0.1
+          psi_alert: 0.25
+          score_percentiles:
+          - 0.5
+          - 0.9
+          - 0.95
+          - 0.99
+          segments:
+          - tipo_estabelecimento
+          - device_type
+          - cidade
+          - hour
+          label_maturity_days: 30
+          min_segment_frauds: 30
+          max_pr_auc_drop: 0.1
+          max_recall_drop: 0.1
+          max_fraud_share_shift: 0.15
+    outs:
+    - path: reports/monitoring_jan2026.json
+      hash: md5
+      md5: cc2d9477a471aaf9fd86e68da008ebaa
+      size: 16021

@@ -1,0 +1,668 @@
+{
+  "generated_at": "2026-11-22T15:02:42+00:00",
+  "reference": {
+    "model_version": "20261122-342575b",
+    "description": "final model on all labelled months"
+  },
+  "window": {
+    "rows": 44451,
+    "from": "2026-01-01 00:00:00",
+    "to": "2026-01-31 23:58:00",
+    "model_versions": {}
+  },
+  "input_drift": {
+    "nome_estabelecimento": {
+      "psi": 0.0003,
+      "status": "ok",
+      "missing_rate": 0.0,
+      "reference_missing_rate": 0.0,
+      "top_moves": {
+        "Supermarket B": {
+          "reference": 0.0989,
+          "current": 0.1019
+        },
+        "Restaurant Y": {
+          "reference": 0.1003,
+          "current": 0.0975
+        },
+        "Restaurant X": {
+          "reference": 0.0996,
+          "current": 0.102
+        }
+      }
+    },
+    "valor_transacao": {
+      "psi": 0.0002,
+      "status": "ok",
+      "missing_rate": 0.0,
+      "reference_missing_rate": 0.0,
+      "top_moves": {
+        "bin_06": {
+          "reference": 0.1,
+          "current": 0.0975
+        },
+        "bin_01": {
+          "reference": 0.1,
+          "current": 0.1023
+        },
+        "bin_02": {
+          "reference": 0.1001,
+          "current": 0.0984
+        }
+      }
+    },
+    "cidade": {
+      "psi": 0.0001,
+      "status": "ok",
+      "missing_rate": 0.0,
+      "reference_missing_rate": 0.0,
+      "top_moves": {
+        "São Paulo": {
+          "reference": 0.1426,
+          "current": 0.1405
+        },
+        "Curitiba": {
+          "reference": 0.1435,
+          "current": 0.145
+        },
+        "Salvador": {
+          "reference": 0.143,
+          "current": 0.144
+        }
+      }
+    },
+    "hour": {
+      "psi": 0.0,
+      "status": "ok",
+      "missing_rate": 0.0,
+      "reference_missing_rate": 0.0,
+      "top_moves": {
+        "__other__": {
+          "reference": 0.1666,
+          "current": 0.1667
+        },
+        "8": {
+          "reference": 0.0417,
+          "current": 0.0416
+        },
+        "6": {
+          "reference": 0.0417,
+          "current": 0.0418
+        }
+      }
+    },
+    "tipo_estabelecimento": {
+      "psi": 0.0,
+      "status": "ok",
+      "missing_rate": 0.0,
+      "reference_missing_rate": 0.0,
+      "top_moves": {
+        "Supermarket": {
+          "reference": 0.1991,
+          "current": 0.2011
+        },
+        "Retail": {
+          "reference": 0.1999,
+          "current": 0.1987
+        },
+        "Fuel": {
+          "reference": 0.0996,
+          "current": 0.099
+        }
+      }
+    },
+    "device_type": {
+      "psi": 0.0,
+      "status": "ok",
+      "missing_rate": 0.0,
+      "reference_missing_rate": 0.0,
+      "top_moves": {
+        "mobile": {
+          "reference": 0.556,
+          "current": 0.5586
+        },
+        "desktop": {
+          "reference": 0.3462,
+          "current": 0.3449
+        },
+        "tablet": {
+          "reference": 0.0978,
+          "current": 0.0965
+        }
+      }
+    },
+    "is_new_device": {
+      "psi": 0.0,
+      "status": "ok",
+      "missing_rate": 0.0,
+      "reference_missing_rate": 0.0,
+      "top_moves": {
+        "1": {
+          "reference": 0.1658,
+          "current": 0.1651
+        },
+        "0": {
+          "reference": 0.8342,
+          "current": 0.8349
+        },
+        "__other__": {
+          "reference": 0.0,
+          "current": 0.0
+        }
+      }
+    }
+  },
+  "score_drift": {
+    "psi": 0.0001,
+    "status": "ok",
+    "percentiles": {
+      "reference": {
+        "p50": 0.00037,
+        "p90": 0.098324,
+        "p95": 0.31504,
+        "p99": 0.749012
+      },
+      "current": {
+        "p50": 0.000369,
+        "p90": 0.095996,
+        "p95": 0.316709,
+        "p99": 0.745232
+      }
+    }
+  },
+  "segments": {
+    "tipo_estabelecimento": {
+      "E-commerce": {
+        "rows": 8941,
+        "block_rate": 0.0539,
+        "review_rate": 0.0192,
+        "approve_rate": 0.9269,
+        "score_percentiles": {
+          "p50": 0.000431,
+          "p90": 0.088234,
+          "p95": 0.293736,
+          "p99": 0.724595
+        }
+      },
+      "Food & Beverage": {
+        "rows": 8866,
+        "block_rate": 0.1029,
+        "review_rate": 0.0314,
+        "approve_rate": 0.8658,
+        "score_percentiles": {
+          "p50": 0.000799,
+          "p90": 0.294231,
+          "p95": 0.494376,
+          "p99": 0.820819
+        }
+      },
+      "Fuel": {
+        "rows": 4400,
+        "block_rate": 0.1291,
+        "review_rate": 0.035,
+        "approve_rate": 0.8359,
+        "score_percentiles": {
+          "p50": 0.001265,
+          "p90": 0.35379,
+          "p95": 0.634323,
+          "p99": 0.838037
+        }
+      },
+      "Pharmacy": {
+        "rows": 4471,
+        "block_rate": 0.0338,
+        "review_rate": 0.0248,
+        "approve_rate": 0.9414,
+        "score_percentiles": {
+          "p50": 0.0002,
+          "p90": 0.001482,
+          "p95": 0.193658,
+          "p99": 0.643678
+        }
+      },
+      "Retail": {
+        "rows": 8832,
+        "block_rate": 0.0383,
+        "review_rate": 0.023,
+        "approve_rate": 0.9387,
+        "score_percentiles": {
+          "p50": 0.000211,
+          "p90": 0.002096,
+          "p95": 0.213877,
+          "p99": 0.668583
+        }
+      },
+      "Supermarket": {
+        "rows": 8941,
+        "block_rate": 0.0309,
+        "review_rate": 0.0235,
+        "approve_rate": 0.9456,
+        "score_percentiles": {
+          "p50": 0.000199,
+          "p90": 0.001334,
+          "p95": 0.180715,
+          "p99": 0.645609
+        }
+      }
+    },
+    "device_type": {
+      "desktop": {
+        "rows": 15331,
+        "block_rate": 0.0393,
+        "review_rate": 0.0355,
+        "approve_rate": 0.9251,
+        "score_percentiles": {
+          "p50": 0.000292,
+          "p90": 0.057473,
+          "p95": 0.222272,
+          "p99": 0.655857
+        }
+      },
+      "mobile": {
+        "rows": 24829,
+        "block_rate": 0.0812,
+        "review_rate": 0.0191,
+        "approve_rate": 0.8997,
+        "score_percentiles": {
+          "p50": 0.000431,
+          "p90": 0.155556,
+          "p95": 0.386742,
+          "p99": 0.78584
+        }
+      },
+      "tablet": {
+        "rows": 4291,
+        "block_rate": 0.0249,
+        "review_rate": 0.0254,
+        "approve_rate": 0.9497,
+        "score_percentiles": {
+          "p50": 0.000305,
+          "p90": 0.017348,
+          "p95": 0.153152,
+          "p99": 0.587834
+        }
+      }
+    },
+    "cidade": {
+      "Belo Horizonte": {
+        "rows": 6287,
+        "block_rate": 0.0573,
+        "review_rate": 0.0237,
+        "approve_rate": 0.919,
+        "score_percentiles": {
+          "p50": 0.00039,
+          "p90": 0.071207,
+          "p95": 0.30481,
+          "p99": 0.732861
+        }
+      },
+      "Curitiba": {
+        "rows": 6445,
+        "block_rate": 0.0571,
+        "review_rate": 0.0251,
+        "approve_rate": 0.9178,
+        "score_percentiles": {
+          "p50": 0.000411,
+          "p90": 0.089314,
+          "p95": 0.302769,
+          "p99": 0.74176
+        }
+      },
+      "Porto Alegre": {
+        "rows": 6362,
+        "block_rate": 0.0594,
+        "review_rate": 0.0234,
+        "approve_rate": 0.9172,
+        "score_percentiles": {
+          "p50": 0.000374,
+          "p90": 0.081607,
+          "p95": 0.314733,
+          "p99": 0.743209
+        }
+      },
+      "Recife": {
+        "rows": 6374,
+        "block_rate": 0.0408,
+        "review_rate": 0.0235,
+        "approve_rate": 0.9357,
+        "score_percentiles": {
+          "p50": 0.000298,
+          "p90": 0.0127,
+          "p95": 0.229277,
+          "p99": 0.665153
+        }
+      },
+      "Rio de Janeiro": {
+        "rows": 6336,
+        "block_rate": 0.0865,
+        "review_rate": 0.0322,
+        "approve_rate": 0.8813,
+        "score_percentiles": {
+          "p50": 0.000426,
+          "p90": 0.215949,
+          "p95": 0.465629,
+          "p99": 0.785729
+        }
+      },
+      "Salvador": {
+        "rows": 6402,
+        "block_rate": 0.0412,
+        "review_rate": 0.0206,
+        "approve_rate": 0.9381,
+        "score_percentiles": {
+          "p50": 0.000313,
+          "p90": 0.017195,
+          "p95": 0.221351,
+          "p99": 0.657347
+        }
+      },
+      "São Paulo": {
+        "rows": 6245,
+        "block_rate": 0.0879,
+        "review_rate": 0.0291,
+        "approve_rate": 0.8829,
+        "score_percentiles": {
+          "p50": 0.000429,
+          "p90": 0.215114,
+          "p95": 0.471447,
+          "p99": 0.803305
+        }
+      }
+    },
+    "hour": {
+      "0": {
+        "rows": 1848,
+        "block_rate": 0.0276,
+        "review_rate": 0.0043,
+        "approve_rate": 0.9681,
+        "score_percentiles": {
+          "p50": 0.00018,
+          "p90": 0.001337,
+          "p95": 0.003249,
+          "p99": 0.494172
+        }
+      },
+      "1": {
+        "rows": 1856,
+        "block_rate": 0.0172,
+        "review_rate": 0.0043,
+        "approve_rate": 0.9784,
+        "score_percentiles": {
+          "p50": 0.000178,
+          "p90": 0.001155,
+          "p95": 0.002299,
+          "p99": 0.461439
+        }
+      },
+      "2": {
+        "rows": 1855,
+        "block_rate": 0.0194,
+        "review_rate": 0.0038,
+        "approve_rate": 0.9768,
+        "score_percentiles": {
+          "p50": 0.000181,
+          "p90": 0.001054,
+          "p95": 0.002251,
+          "p99": 0.473642
+        }
+      },
+      "3": {
+        "rows": 1854,
+        "block_rate": 0.0216,
+        "review_rate": 0.0027,
+        "approve_rate": 0.9757,
+        "score_percentiles": {
+          "p50": 0.000189,
+          "p90": 0.001277,
+          "p95": 0.002846,
+          "p99": 0.692438
+        }
+      },
+      "4": {
+        "rows": 1850,
+        "block_rate": 0.0243,
+        "review_rate": 0.0065,
+        "approve_rate": 0.9692,
+        "score_percentiles": {
+          "p50": 0.000185,
+          "p90": 0.001355,
+          "p95": 0.00298,
+          "p99": 0.480839
+        }
+      },
+      "5": {
+        "rows": 1851,
+        "block_rate": 0.0243,
+        "review_rate": 0.0027,
+        "approve_rate": 0.973,
+        "score_percentiles": {
+          "p50": 0.000187,
+          "p90": 0.001293,
+          "p95": 0.00285,
+          "p99": 0.486428
+        }
+      },
+      "6": {
+        "rows": 1857,
+        "block_rate": 0.0275,
+        "review_rate": 0.0027,
+        "approve_rate": 0.9698,
+        "score_percentiles": {
+          "p50": 0.000187,
+          "p90": 0.001296,
+          "p95": 0.002995,
+          "p99": 0.771335
+        }
+      },
+      "7": {
+        "rows": 1853,
+        "block_rate": 0.0248,
+        "review_rate": 0.0027,
+        "approve_rate": 0.9725,
+        "score_percentiles": {
+          "p50": 0.000186,
+          "p90": 0.001543,
+          "p95": 0.002989,
+          "p99": 0.489611
+        }
+      },
+      "8": {
+        "rows": 1848,
+        "block_rate": 0.0227,
+        "review_rate": 0.0016,
+        "approve_rate": 0.9756,
+        "score_percentiles": {
+          "p50": 0.000189,
+          "p90": 0.001163,
+          "p95": 0.002912,
+          "p99": 0.484142
+        }
+      },
+      "9": {
+        "rows": 1850,
+        "block_rate": 0.0,
+        "review_rate": 0.0,
+        "approve_rate": 1.0,
+        "score_percentiles": {
+          "p50": 0.000186,
+          "p90": 0.000863,
+          "p95": 0.001498,
+          "p99": 0.011933
+        }
+      },
+      "10": {
+        "rows": 1850,
+        "block_rate": 0.0,
+        "review_rate": 0.0,
+        "approve_rate": 1.0,
+        "score_percentiles": {
+          "p50": 0.000181,
+          "p90": 0.000802,
+          "p95": 0.001203,
+          "p99": 0.009325
+        }
+      },
+      "11": {
+        "rows": 1851,
+        "block_rate": 0.0,
+        "review_rate": 0.0,
+        "approve_rate": 1.0,
+        "score_percentiles": {
+          "p50": 0.000183,
+          "p90": 0.000876,
+          "p95": 0.001302,
+          "p99": 0.011374
+        }
+      },
+      "12": {
+        "rows": 1855,
+        "block_rate": 0.1084,
+        "review_rate": 0.0189,
+        "approve_rate": 0.8728,
+        "score_percentiles": {
+          "p50": 0.000617,
+          "p90": 0.315432,
+          "p95": 0.556698,
+          "p99": 0.830912
+        }
+      },
+      "13": {
+        "rows": 1850,
+        "block_rate": 0.1065,
+        "review_rate": 0.0168,
+        "approve_rate": 0.8768,
+        "score_percentiles": {
+          "p50": 0.00062,
+          "p90": 0.312638,
+          "p95": 0.495383,
+          "p99": 0.828796
+        }
+      },
+      "14": {
+        "rows": 1849,
+        "block_rate": 0.1125,
+        "review_rate": 0.0162,
+        "approve_rate": 0.8713,
+        "score_percentiles": {
+          "p50": 0.000589,
+          "p90": 0.333185,
+          "p95": 0.532091,
+          "p99": 0.834486
+        }
+      },
+      "15": {
+        "rows": 1856,
+        "block_rate": 0.0,
+        "review_rate": 0.0,
+        "approve_rate": 1.0,
+        "score_percentiles": {
+          "p50": 0.000422,
+          "p90": 0.001079,
+          "p95": 0.001937,
+          "p99": 0.005473
+        }
+      },
+      "16": {
+        "rows": 1851,
+        "block_rate": 0.0,
+        "review_rate": 0.0,
+        "approve_rate": 1.0,
+        "score_percentiles": {
+          "p50": 0.000427,
+          "p90": 0.001076,
+          "p95": 0.001719,
+          "p99": 0.00559
+        }
+      },
+      "17": {
+        "rows": 1852,
+        "block_rate": 0.0,
+        "review_rate": 0.0,
+        "approve_rate": 1.0,
+        "score_percentiles": {
+          "p50": 0.000406,
+          "p90": 0.001135,
+          "p95": 0.002188,
+          "p99": 0.005818
+        }
+      },
+      "18": {
+        "rows": 1851,
+        "block_rate": 0.0,
+        "review_rate": 0.0,
+        "approve_rate": 1.0,
+        "score_percentiles": {
+          "p50": 0.000426,
+          "p90": 0.001029,
+          "p95": 0.001805,
+          "p99": 0.005095
+        }
+      },
+      "19": {
+        "rows": 1849,
+        "block_rate": 0.0,
+        "review_rate": 0.0,
+        "approve_rate": 1.0,
+        "score_percentiles": {
+          "p50": 0.000421,
+          "p90": 0.001158,
+          "p95": 0.002147,
+          "p99": 0.005879
+        }
+      },
+      "20": {
+        "rows": 1855,
+        "block_rate": 0.0151,
+        "review_rate": 0.0038,
+        "approve_rate": 0.9811,
+        "score_percentiles": {
+          "p50": 0.00109,
+          "p90": 0.061615,
+          "p95": 0.093223,
+          "p99": 0.337326
+        }
+      },
+      "21": {
+        "rows": 1852,
+        "block_rate": 0.02,
+        "review_rate": 0.0049,
+        "approve_rate": 0.9752,
+        "score_percentiles": {
+          "p50": 0.001568,
+          "p90": 0.079942,
+          "p95": 0.117257,
+          "p99": 0.363804
+        }
+      },
+      "22": {
+        "rows": 1856,
+        "block_rate": 0.4434,
+        "review_rate": 0.2597,
+        "approve_rate": 0.2969,
+        "score_percentiles": {
+          "p50": 0.245877,
+          "p90": 0.69887,
+          "p95": 0.741378,
+          "p99": 0.797416
+        }
+      },
+      "23": {
+        "rows": 1852,
+        "block_rate": 0.4563,
+        "review_rate": 0.257,
+        "approve_rate": 0.2867,
+        "score_percentiles": {
+          "p50": 0.254258,
+          "p90": 0.704497,
+          "p95": 0.741526,
+          "p99": 0.789869
+        }
+      }
+    }
+  },
+  "performance": {
+    "status": "no_labels"
+  },
+  "alerts": [],
+  "status": "ok"
+}

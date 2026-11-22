@@ -64,13 +64,20 @@ The full analysis is in [notebooks/01_pilot_analysis.ipynb](notebooks/01_pilot_a
 │   ├── evaluate.py           # thresholds on validation, metrics on test, model metadata
 │   ├── policy.py             # probability -> risk band / block decision
 │   ├── tracking.py           # MLflow run logging and model registry
-│   └── predict.py            # batch scoring (FraudScorer, reused by the API)
+│   ├── predict.py            # batch scoring (FraudScorer, reused by the API)
+│   └── monitoring.py         # drift (PSI), segments, performance on matured labels, alerts, heartbeat
 ├── api/
 │   ├── schemas.py            # request/response contract (Pydantic)
-│   └── main.py               # FastAPI service: /health, /model-info, /predict, /predict/batch
+│   ├── metrics.py            # Prometheus model metrics (scores, decisions, unseen values)
+│   └── main.py               # FastAPI service: /health, /model-info, /predict, /predict/batch, /metrics
 ├── Dockerfile                # API image (slim, non-root, health check)
+├── docker-compose.yml        # local stack: API + Prometheus + Grafana + MLflow UI
+├── monitoring/               # Prometheus config, Grafana datasource + dashboard (as code)
+├── docs/monitoring.md        # runbook: what each alert means and what to do
 ├── requirements-api.txt      # pinned runtime dependencies of the API image
-├── scripts/load_test.py      # latency percentiles and throughput
+├── scripts/
+│   ├── load_test.py          # latency percentiles and throughput
+│   └── drift_drill.py        # replays Nov/Dec 2025: would the monitor have caught the drift?
 ├── data/raw/                 # raw CSVs (DVC-tracked; pointers in git)
 ├── data/predictions/         # batch predictions (DVC output)
 ├── models/                   # model files, policy, metadata (DVC outputs)
@@ -83,10 +90,10 @@ The full analysis is in [notebooks/01_pilot_analysis.ipynb](notebooks/01_pilot_a
 ## Pipeline
 
 ```
-validate ──> train ──> evaluate ──> predict
-data         eval model  thresholds   January
-contract     + final     + metrics    classified
-             model       + MLflow
+validate ──> train ──> evaluate ──> predict ──> reference ──> monitor
+data         eval model  thresholds   January    training      January vs
+contract     + final     + metrics    classified distributions reference
+             model       + MLflow                + baseline    (drift check)
 ```
 
 | Stage | Uses | Produces |
@@ -95,6 +102,8 @@ contract     + final     + metrics    classified
 | `train` | Jan–Sep (early stopping on Oct–Nov); then all 2025 | `models/eval_model.txt`, `models/final_model.txt`, `models/training_info.json` |
 | `evaluate` | Oct–Nov to choose thresholds; December to report | `models/policy.json`, `models/metadata.json`, `reports/metrics.json`, an MLflow run and registered model version |
 | `predict` | final model + policy | `data/predictions/transacoes_jan2026_classified.csv`, `reports/prediction_summary.json` |
+| `reference` | final model on all 2025 data; evaluation model on December as the honest performance baseline | `models/reference.json` |
+| `monitor` | January batch vs reference | `reports/monitoring_jan2026.json` |
 
 ## How to run
 
@@ -182,6 +191,7 @@ pre-commit install     # run the checks automatically on every `git commit`
 | `tests/test_features.py` | **Train/serve parity.** Training and the API build identical features. Category codes never depend on the batch. Unseen values become missing. Booleans are strict. UTC is converted. |
 | `tests/test_data_contract.py` | **The data contract** catches each kind of bad data, plus implausible fraud rates. **Consistency:** the training contract (pandera) and the API contract (Pydantic) accept and reject exactly the same values. |
 | `tests/test_api.py` | **Service behaviour,** using a tiny fixture model in production format: health, model info, consistent decisions, 422 on invalid input, batch limits, API scores equal batch scores, every prediction logged, and refusal to start without a model. |
+| `tests/test_monitoring.py`, `tests/test_monitoring_job.py` | **Monitoring.** PSI maths, fixed reference bins, drift flagged or not flagged as expected. Concept drift (same inputs, fraud moved) is invisible to PSI but caught by labels. Alerts are grouped and actionable. Label delay is respected. Plus the prediction log format, the heartbeat and the command line. |
 | `tests/test_model_quality.py` | **Model quality gate** (`model` marker). It checks the test month against `params.yaml` → `quality_gate`: PR-AUC ≥ 0.60, ≥ 1.5× the rule baseline, recall ≥ 50%, precision ≥ 40%. A model with no skill must be rejected. |
 
 **pre-commit hooks** run before every commit:
@@ -195,6 +205,42 @@ pre-commit install     # run the checks automatically on every `git commit`
 2. **Docker:** build the image with a tiny test model, start it, wait until healthy, then smoke-test it. The test confirms a non-root user, a valid prediction, and HTTP 422 on invalid input.
 
 Model lineage: `models/metadata.json` records the git commit the model was trained from. It's flagged `-dirty` only when *source* files were uncommitted, not the pipeline's own outputs.
+
+## Monitoring
+
+Monitoring works at three speeds. The runbook, [docs/monitoring.md](docs/monitoring.md), explains every alert and what to do about it.
+
+| Speed | Tool | Watches |
+|---|---|---|
+| Seconds | `/metrics` → Prometheus → Grafana | Requests, errors, p50/p95/p99 latency; block and review rate (overall and per merchant type); score percentiles; unseen categories; live model version |
+| Hourly | `python -m fraud_detection.monitoring run`, reading the prediction log | PSI per feature, score drift, missing values, decision rates per segment, alerts with actions, heartbeat |
+| Once labels mature (30 days) | The same job, with labels joined | PR-AUC and recall at the block threshold, overall and per segment, against the model's evaluation baseline |
+
+```bash
+docker compose up -d --build     # API :8000, Prometheus :9090, Grafana :3000 (admin/admin), MLflow :5000
+python scripts/load_test.py --url http://127.0.0.1:8000   # traffic for the dashboard
+python -m fraud_detection.monitoring run                  # drift report -> logs/monitoring/monitoring.json
+```
+
+Grafana's "Fraud API: service and model" dashboard and its Prometheus connection are loaded from files in `monitoring/` (dashboards as code).
+
+**Drift drill** (`python scripts/drift_drill.py` writes `reports/drift_drill.json`). It asks: if the model had been live in late 2025, would the monitor have caught December's fraud shift? It uses the evaluation model, trained on Jan–Sep only, with its October performance as the baseline, and replays November and December:
+
+| Month | Max feature PSI | Score PSI | PR-AUC | Recall at block | Monitor |
+|---|---|---|---|---|---|
+| October (baseline) | | | 0.672 | 78% | |
+| November | 0.0002 | 0.0002 | 0.659 | 79% | quiet (one noise-level warning) |
+| December | 0.0004 | 0.0001 | 0.618 | 63% | **alert** |
+
+December's alert, as the on-call engineer receives it:
+
+> **ALERT:** Fraud pattern changed in tipo_estabelecimento=E-commerce: recall at block 69% → 35%; share of all fraud 12% → 39%. 14 related segment findings (likely the same cause).
+> → Review recent fraud cases in this segment with the fraud team; consider a temporary rule for it and a retraining challenger with recent data up-weighted.
+
+**What the drill shows:**
+- **The drift was *concept* drift.** The same kinds of transactions kept arriving; only which of them were fraud changed. Input and score drift checks (PSI) stayed quiet, as they should. Only label-based checks per segment caught it.
+- **Time to detect equals the label delay.** Replayed day by day with a 30-day label delay, the first alert fires on **1 January 2026**, 31 days after the shift began. Faster labels would detect it sooner: analyst review outcomes, customer disputes.
+- **Grouped alerts.** One cause raised 16 segment findings, delivered as one alert with the rest attached.
 
 ## Roadmap
 

@@ -78,3 +78,43 @@ stages:
     metrics:
       - reports/prediction_summary.json:
           cache: false
+
+  # Monitoring reference for the released model: training distributions + honest performance baseline.
+  # Rebuilt with every new model, so a model is always compared with its OWN training data.
+  reference:
+    cmd: python -m fraud_detection.monitoring reference
+    deps:
+      - src/fraud_detection/monitoring.py
+      - src/fraud_detection/predict.py
+      - src/fraud_detection/features.py
+      - data/raw/transacoes_historico_2025.csv
+      - models/eval_model.txt
+      - models/final_model.txt
+      - models/training_info.json
+      - models/policy.json
+      - models/metadata.json
+    params:
+      - monitoring
+      - features
+      - split
+    outs:
+      - models/reference.json
+
+  # Reproducible drift check of the batch we score (January 2026, no labels yet) against the reference.
+  # Live monitoring of the API's prediction log is NOT a pipeline stage: a scheduler runs
+  # `python -m fraud_detection.monitoring run` every hour (see docs/monitoring.md).
+  monitor:
+    cmd: python -m fraud_detection.monitoring run --window data/raw/transacoes_jan2026.csv
+      --report reports/monitoring_jan2026.json --no-heartbeat
+    deps:
+      - src/fraud_detection/monitoring.py
+      - data/raw/transacoes_jan2026.csv
+      - models/reference.json
+      - models/final_model.txt
+      - models/policy.json
+      - models/metadata.json
+    params:
+      - monitoring
+    outs:
+      - reports/monitoring_jan2026.json:
+          cache: false

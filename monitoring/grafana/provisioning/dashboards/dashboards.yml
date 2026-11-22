@@ -1,0 +1,10 @@
+# Grafana loads every dashboard JSON in this folder at startup (dashboards as code).
+apiVersion: 1
+providers:
+  - name: fraud-detection
+    folder: Fraud Detection
+    type: file
+    allowUiUpdates: false            # git is the source of truth; edits in the UI are not saved
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false

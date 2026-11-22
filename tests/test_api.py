@@ -13,6 +13,7 @@ import lightgbm as lgb
 import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
+from prometheus_client import REGISTRY
 
 import api.main as api_main
 from fraud_detection.policy import ACTIONS
@@ -114,6 +115,61 @@ def test_api_scores_equal_batch_scores(client, model_dir):
     scorer = FraudScorer(model_dir / "final_model.txt", model_dir / "metadata.json", model_dir / "policy.json")
     batch = scorer.score(raw)
     assert api_probs == batch["fraud_probability"].tolist()
+
+
+# --------------------------------------------------------------------------- metrics
+def _metric(name: str, **labels) -> float:
+    """Current value of one metric sample in the process-wide registry (0 if not created yet)."""
+    return REGISTRY.get_sample_value(name, labels) or 0.0
+
+
+def test_metrics_endpoint_serves_prometheus_text(client):
+    r = client.get("/metrics")
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("text/plain")
+    assert 'fraud_model_info{model_version="test-0001"} 1.0' in r.text
+
+
+def _decision_counts() -> dict[tuple, float]:
+    """All fraud_decisions_total samples, keyed by (decision, risk_band, merchant_type)."""
+    return {(s.labels["decision"], s.labels["risk_band"], s.labels["merchant_type"]): s.value
+            for family in REGISTRY.collect() if family.name == "fraud_decisions"
+            for s in family.samples if s.name == "fraud_decisions_total"}
+
+
+def test_prediction_updates_model_metrics(client):
+    scores_before, decisions_before = _metric("fraud_score_count"), _decision_counts()
+    body = client.post("/predict", json=VALID).json()
+    key = (body["decision"], body["risk_band"], "E-commerce")
+
+    assert _metric("fraud_score_count") == scores_before + 1
+    decisions_after = _decision_counts()
+    assert decisions_after[key] == decisions_before.get(key, 0) + 1
+    assert sum(decisions_after.values()) == sum(decisions_before.values()) + 1   # nothing else moved
+    assert _metric("fraud_scoring_seconds_count", endpoint="/predict") >= 1
+    assert "fraud_decisions_total{" in client.get("/metrics").text
+
+
+def test_batch_counts_every_transaction(client):
+    before = _metric("fraud_score_count")
+    client.post("/predict/batch", json={"transactions": [VALID] * 5})
+    assert _metric("fraud_score_count") == before + 5
+
+
+def test_unseen_categories_are_counted(client):
+    before = _metric("fraud_unknown_category_total", feature="cidade")
+    client.post("/predict", json={**VALID, "cidade": "Cidade Nunca Vista"})
+    client.post("/predict", json=VALID)                                  # known city: not counted
+    assert _metric("fraud_unknown_category_total", feature="cidade") == before + 1
+
+
+def test_service_metrics_count_requests_by_status(client):
+    ok = _metric("http_requests_total", handler="/predict", method="POST", status="2xx")
+    bad = _metric("http_requests_total", handler="/predict", method="POST", status="4xx")
+    client.post("/predict", json=VALID)
+    client.post("/predict", json={**VALID, "valor_transacao": -1})
+    assert _metric("http_requests_total", handler="/predict", method="POST", status="2xx") == ok + 1
+    assert _metric("http_requests_total", handler="/predict", method="POST", status="4xx") == bad + 1
 
 
 # --------------------------------------------------------------------------- logging & startup

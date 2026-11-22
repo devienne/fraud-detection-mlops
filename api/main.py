@@ -11,6 +11,8 @@ Design choices
   a file swap + restart, not a code change.
 - Every prediction is appended to a JSON Lines log (inputs, score, band, decision, model version,
   latency). It feeds monitoring and lets predictions be joined to fraud labels later.
+- GET /metrics exposes Prometheus metrics: service metrics (requests, status codes, latency) and
+  model metrics (score distribution, decisions, unseen categories, scoring time); see api/metrics.py.
 """
 
 from __future__ import annotations
@@ -25,7 +27,9 @@ from pathlib import Path
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException
+from prometheus_fastapi_instrumentator import Instrumentator
 
+from api import metrics
 from api.schemas import BatchRequest, BatchResponse, FraudScore, Transaction
 from fraud_detection import __version__
 from fraud_detection.config import MODELS_DIR, PROJECT_ROOT
@@ -63,6 +67,7 @@ async def lifespan(app: FastAPI):
         policy_path=POLICY_PATH,
     )
     state["logger"] = PredictionLogger(PREDICTION_LOG)
+    metrics.set_model_info(state["scorer"].version)
     yield
     state.clear()
 
@@ -73,6 +78,13 @@ app = FastAPI(
     description="Scores card transactions: fraud probability, risk band and decision (approve / review / block).",
     lifespan=lifespan,
 )
+
+# Service metrics for every endpoint (count, status class, latency histogram), served at /metrics.
+# Per-endpoint latency buckets are fine-grained around our ~20 ms typical latency and the 700 ms
+# real-time budget (the library default, 0.1/0.5/1 s, cannot resolve p50/p95/p99 here).
+LATENCY_BUCKETS = (0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.3, 0.5, 0.7, 1.0, 2.5)
+Instrumentator(excluded_handlers=["/metrics"]).instrument(
+    app, latency_lowr_buckets=LATENCY_BUCKETS).expose(app, include_in_schema=False)
 
 
 def _scorer() -> FraudScorer:
@@ -87,7 +99,8 @@ def _score(transactions: list[Transaction], endpoint: str) -> list[FraudScore]:
     start = time.perf_counter()
     raw = pd.DataFrame([t.model_dump() for t in transactions])
     scored = scorer.score(raw)
-    latency_ms = (time.perf_counter() - start) * 1000
+    seconds = time.perf_counter() - start
+    latency_ms = seconds * 1000
 
     results = [
         FraudScore(
@@ -106,6 +119,15 @@ def _score(transactions: list[Transaction], endpoint: str) -> list[FraudScore]:
          "inputs": t.model_dump(mode="json"), **r.model_dump()}
         for t, r in zip(transactions, results, strict=True)
     ])
+    metrics.record_predictions(
+        raw,
+        probabilities=[r.fraud_probability for r in results],
+        bands=[r.risk_band for r in results],
+        decisions=[r.decision for r in results],
+        category_levels=scorer.metadata["features"]["category_levels"],
+        endpoint=endpoint,
+        seconds=seconds,
+    )
     return results
 
 

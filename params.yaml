@@ -43,6 +43,19 @@ quality_gate:               # minimum standard a model must meet on the test mon
   min_recall_at_block: 0.50  # share of test fraud blocked (current: 0.63)
   min_precision_at_block: 0.40  # share of blocks that are real fraud (current: 0.59)
 
+monitoring:                 # drift checks of a window of recent transactions vs the training reference
+  numeric_bins: 10           # quantile bins (from the reference) for continuous features and scores
+  top_categories: 20         # most frequent reference values kept as their own bin; the rest pooled as "other"
+  psi_warn: 0.10             # PSI rule of thumb: < 0.10 stable, 0.10-0.25 watch, > 0.25 act
+  psi_alert: 0.25
+  score_percentiles: [0.50, 0.90, 0.95, 0.99]
+  segments: [tipo_estabelecimento, device_type, cidade, hour]   # few, fixed values each
+  label_maturity_days: 30    # fraud is reported late: only older transactions have final labels
+  min_segment_frauds: 30     # compare a segment's recall only with enough fraud on both sides (noise)
+  max_pr_auc_drop: 0.10      # alert if PR-AUC falls this much below the baseline (absolute)
+  max_recall_drop: 0.10      # alert if recall at the block threshold falls this much (overall or segment)
+  max_fraud_share_shift: 0.15  # alert if a segment's share of all fraud moves this much (fraud pattern change)
+
 mlflow:
   tracking_uri: sqlite:///mlflow.db
   experiment: fraud-detection

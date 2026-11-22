@@ -1,0 +1,452 @@
+{
+  "setup": {
+    "model": "evaluation model trained on Jan-Sep 2025",
+    "reference_months": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "baseline_month": 10,
+    "policy": {
+      "block_threshold": 0.28,
+      "review_threshold": 0.1525136455545558,
+      "false_block_cost": 10.0,
+      "review_recall_target": 0.95,
+      "chosen_on": "validation months [10, 11]"
+    },
+    "label_maturity_days": 30
+  },
+  "baseline_october": {
+    "rows": 44468,
+    "frauds": 1693,
+    "fraud_rate": 0.038072,
+    "pr_auc": 0.6723,
+    "recall_at_block": 0.7755,
+    "precision_at_block": 0.5337,
+    "block_rate": 0.0553
+  },
+  "months": {
+    "November": {
+      "rows": 43040,
+      "status": "warn",
+      "max_feature_psi": {
+        "feature": "nome_estabelecimento",
+        "psi": 0.0002,
+        "status": "ok"
+      },
+      "score_psi": 0.0002,
+      "score_percentiles": {
+        "reference": {
+          "p50": 0.000351,
+          "p90": 0.058753,
+          "p95": 0.297267,
+          "p99": 0.74668
+        },
+        "current": {
+          "p50": 0.000351,
+          "p90": 0.059031,
+          "p95": 0.296379,
+          "p99": 0.745691
+        }
+      },
+      "performance": {
+        "frauds": 1580,
+        "pr_auc": 0.6585,
+        "recall_at_block": 0.7892,
+        "precision_at_block": 0.53
+      },
+      "alerts": [
+        {
+          "severity": "warn",
+          "check": "segment_performance",
+          "subject": "tipo_estabelecimento=Pharmacy",
+          "message": "Fraud pattern changed in tipo_estabelecimento=Pharmacy: recall_at_block 76% -> 70%. 1 related segment findings (likely the same cause).",
+          "related_findings": 1
+        }
+      ]
+    },
+    "December": {
+      "rows": 44451,
+      "status": "alert",
+      "max_feature_psi": {
+        "feature": "is_new_device",
+        "psi": 0.0004,
+        "status": "ok"
+      },
+      "score_psi": 0.0001,
+      "score_percentiles": {
+        "reference": {
+          "p50": 0.000351,
+          "p90": 0.058753,
+          "p95": 0.297267,
+          "p99": 0.74668
+        },
+        "current": {
+          "p50": 0.000353,
+          "p90": 0.058542,
+          "p95": 0.302619,
+          "p99": 0.745593
+        }
+      },
+      "performance": {
+        "frauds": 2411,
+        "pr_auc": 0.6178,
+        "recall_at_block": 0.6275,
+        "precision_at_block": 0.5929
+      },
+      "alerts": [
+        {
+          "severity": "alert",
+          "check": "performance",
+          "subject": "recall_at_block",
+          "message": "recall_at_block on matured labels fell from 0.775 to 0.627.",
+          "related_findings": 0
+        },
+        {
+          "severity": "alert",
+          "check": "segment_performance",
+          "subject": "tipo_estabelecimento=E-commerce",
+          "message": "Fraud pattern changed in tipo_estabelecimento=E-commerce: recall_at_block 69% -> 35%; fraud_share 12% -> 39%. 14 related segment findings (likely the same cause).",
+          "related_findings": 14
+        },
+        {
+          "severity": "warn",
+          "check": "performance",
+          "subject": "pr_auc",
+          "message": "pr_auc on matured labels fell from 0.672 to 0.618.",
+          "related_findings": 0
+        }
+      ]
+    }
+  },
+  "december_live_replay": {
+    "first_alert": {
+      "as_of": "2026-01-01",
+      "matured_rows": 1435,
+      "alerts": [
+        "pr_auc on matured labels fell from 0.672 to 0.560.",
+        "recall_at_block on matured labels fell from 0.775 to 0.560.",
+        "Fraud pattern changed in tipo_estabelecimento=E-commerce: fraud_share 12% -> 39%. 5 related segment findings (likely the same cause)."
+      ]
+    },
+    "days_after_shift_started": 31,
+    "timeline": [
+      {
+        "as_of": "2025-12-02",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-03",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-04",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-05",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-06",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-07",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-08",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-09",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-10",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-11",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-12",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-13",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-14",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-15",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-16",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-17",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-18",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-19",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-20",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-21",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-22",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-23",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-24",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-25",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-26",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-27",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-28",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-29",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-30",
+        "status": "ok",
+        "matured_rows": 0
+      },
+      {
+        "as_of": "2025-12-31",
+        "status": "ok",
+        "matured_rows": 1
+      },
+      {
+        "as_of": "2026-01-01",
+        "status": "alert",
+        "matured_rows": 1435
+      },
+      {
+        "as_of": "2026-01-02",
+        "status": "alert",
+        "matured_rows": 2871
+      },
+      {
+        "as_of": "2026-01-03",
+        "status": "alert",
+        "matured_rows": 4305
+      },
+      {
+        "as_of": "2026-01-04",
+        "status": "alert",
+        "matured_rows": 5738
+      },
+      {
+        "as_of": "2026-01-05",
+        "status": "alert",
+        "matured_rows": 7169
+      },
+      {
+        "as_of": "2026-01-06",
+        "status": "alert",
+        "matured_rows": 8601
+      },
+      {
+        "as_of": "2026-01-07",
+        "status": "alert",
+        "matured_rows": 10036
+      },
+      {
+        "as_of": "2026-01-08",
+        "status": "alert",
+        "matured_rows": 11473
+      },
+      {
+        "as_of": "2026-01-09",
+        "status": "alert",
+        "matured_rows": 12909
+      },
+      {
+        "as_of": "2026-01-10",
+        "status": "alert",
+        "matured_rows": 14341
+      },
+      {
+        "as_of": "2026-01-11",
+        "status": "alert",
+        "matured_rows": 15772
+      },
+      {
+        "as_of": "2026-01-12",
+        "status": "alert",
+        "matured_rows": 17204
+      },
+      {
+        "as_of": "2026-01-13",
+        "status": "alert",
+        "matured_rows": 18637
+      },
+      {
+        "as_of": "2026-01-14",
+        "status": "alert",
+        "matured_rows": 20069
+      },
+      {
+        "as_of": "2026-01-15",
+        "status": "alert",
+        "matured_rows": 21505
+      },
+      {
+        "as_of": "2026-01-16",
+        "status": "alert",
+        "matured_rows": 22940
+      },
+      {
+        "as_of": "2026-01-17",
+        "status": "alert",
+        "matured_rows": 24373
+      },
+      {
+        "as_of": "2026-01-18",
+        "status": "alert",
+        "matured_rows": 25805
+      },
+      {
+        "as_of": "2026-01-19",
+        "status": "alert",
+        "matured_rows": 27239
+      },
+      {
+        "as_of": "2026-01-20",
+        "status": "alert",
+        "matured_rows": 28677
+      },
+      {
+        "as_of": "2026-01-21",
+        "status": "alert",
+        "matured_rows": 30113
+      },
+      {
+        "as_of": "2026-01-22",
+        "status": "alert",
+        "matured_rows": 31546
+      },
+      {
+        "as_of": "2026-01-23",
+        "status": "alert",
+        "matured_rows": 32981
+      },
+      {
+        "as_of": "2026-01-24",
+        "status": "alert",
+        "matured_rows": 34415
+      },
+      {
+        "as_of": "2026-01-25",
+        "status": "alert",
+        "matured_rows": 35850
+      },
+      {
+        "as_of": "2026-01-26",
+        "status": "alert",
+        "matured_rows": 37283
+      },
+      {
+        "as_of": "2026-01-27",
+        "status": "alert",
+        "matured_rows": 38718
+      },
+      {
+        "as_of": "2026-01-28",
+        "status": "alert",
+        "matured_rows": 40149
+      },
+      {
+        "as_of": "2026-01-29",
+        "status": "alert",
+        "matured_rows": 41583
+      },
+      {
+        "as_of": "2026-01-30",
+        "status": "alert",
+        "matured_rows": 43017
+      },
+      {
+        "as_of": "2026-01-31",
+        "status": "alert",
+        "matured_rows": 44451
+      },
+      {
+        "as_of": "2026-02-01",
+        "status": "alert",
+        "matured_rows": 44451
+      }
+    ]
+  }
+}

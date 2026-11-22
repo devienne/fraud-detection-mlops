@@ -1,0 +1,59 @@
+# Local production-like stack: fraud API + Prometheus + Grafana + MLflow UI.
+#   start:  docker compose up -d --build        stop:  docker compose down
+#   API http://localhost:8000/docs   Prometheus http://localhost:9090   Grafana http://localhost:3000
+#   MLflow http://localhost:5000
+# Services find each other by name on the compose network (e.g. Prometheus scrapes "api:8000").
+
+name: fraud-detection
+
+services:
+  api:
+    build: .
+    image: fraud-api:latest
+    ports: ["8000:8000"]
+    volumes:
+      - ./logs:/app/logs                   # prediction log on the host, for the monitoring job
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    ports: ["9090:9090"]
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=15d
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus        # metric history survives restarts
+    depends_on: [api]
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:12.1.1
+    ports: ["3000:3000"]
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin    # local demo only
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro   # datasource (and dashboards) as code
+      - grafana-data:/var/lib/grafana
+    depends_on: [prometheus]
+    restart: unless-stopped
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v3.18.0
+    ports: ["5000:5000"]
+    # Runs, metrics, params and the model registry come from mlflow.db. Artifact files (plots, model
+    # copies) were logged with Windows paths, so they are not viewable from this Linux container;
+    # a shared artifact store (e.g. S3/MinIO) would fix that.
+    command: >
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --allowed-hosts "localhost:*,127.0.0.1:*"
+    volumes:
+      - ./mlflow.db:/mlflow/mlflow.db
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:
+  grafana-data:

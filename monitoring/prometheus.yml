@@ -1,0 +1,19 @@
+# Prometheus: what to scrape and how often.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: fraud-api
+    scrape_interval: 5s              # short interval: a local demo with bursts of load-test traffic
+    metrics_path: /metrics
+    static_configs:
+      # Static target for local compose. In Kubernetes: kubernetes_sd_configs (service discovery),
+      # so every replica is found and scraped automatically.
+      - targets: ["api:8000"]
+        labels:
+          service: fraud-api
+
+  - job_name: prometheus             # Prometheus monitors itself (meta-monitoring)
+    static_configs:
+      - targets: ["localhost:9090"]

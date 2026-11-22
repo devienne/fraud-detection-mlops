@@ -20,6 +20,13 @@ FINAL_MODEL_PATH = MODELS_DIR / "final_model.txt"    # trained on all labelled d
 TRAINING_INFO_PATH = MODELS_DIR / "training_info.json"
 POLICY_PATH = MODELS_DIR / "policy.json"
 METADATA_PATH = MODELS_DIR / "metadata.json"
+REFERENCE_PATH = MODELS_DIR / "reference.json"        # training-time distributions + performance baseline
+
+# Live operation (not versioned, git-ignored): the API's prediction log and the scheduled monitor's outputs
+LOGS_DIR = PROJECT_ROOT / "logs"
+PREDICTION_LOG_PATH = LOGS_DIR / "predictions.jsonl"                 # written by the API
+MONITORING_REPORT_PATH = LOGS_DIR / "monitoring" / "monitoring.json"
+HEARTBEAT_PATH = LOGS_DIR / "monitoring" / "heartbeat.json"
 
 
 class DataConfig(BaseModel):
@@ -102,6 +109,28 @@ class QualityGateConfig(BaseModel):
     min_precision_at_block: float = Field(gt=0, lt=1)
 
 
+class MonitoringConfig(BaseModel):
+    numeric_bins: int = Field(ge=2, le=100)
+    top_categories: int = Field(ge=1)
+    psi_warn: float = Field(gt=0)
+    psi_alert: float = Field(gt=0)
+    score_percentiles: list[float]
+    segments: list[str] = Field(min_length=1)
+    label_maturity_days: int = Field(ge=0)
+    min_segment_frauds: int = Field(ge=1)
+    max_pr_auc_drop: float = Field(gt=0, lt=1)
+    max_recall_drop: float = Field(gt=0, lt=1)
+    max_fraud_share_shift: float = Field(gt=0, lt=1)
+
+    @model_validator(mode="after")
+    def warn_below_alert(self) -> MonitoringConfig:
+        if self.psi_warn >= self.psi_alert:
+            raise ValueError("psi_warn must be lower than psi_alert")
+        if not all(0 < p < 1 for p in self.score_percentiles):
+            raise ValueError("score_percentiles must be between 0 and 1")
+        return self
+
+
 class MlflowConfig(BaseModel):
     tracking_uri: str
     experiment: str
@@ -124,7 +153,15 @@ class Params(BaseModel):
     model: ModelConfig
     policy: PolicyConfig
     quality_gate: QualityGateConfig
+    monitoring: MonitoringConfig
     mlflow: MlflowConfig
+
+    @model_validator(mode="after")
+    def segments_are_features(self) -> Params:
+        missing = set(self.monitoring.segments) - set(self.features.columns)
+        if missing:
+            raise ValueError(f"monitoring segments not in features.columns: {sorted(missing)}")
+        return self
 
     def path(self, relative: Path) -> Path:
         return relative if relative.is_absolute() else PROJECT_ROOT / relative
