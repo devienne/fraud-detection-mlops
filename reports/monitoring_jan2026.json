@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-11-22T15:02:42+00:00",
+  "generated_at": "2026-11-22T15:23:04+00:00",
   "reference": {
-    "model_version": "20261122-342575b",
+    "model_version": "20261122-7295a64",
     "description": "final model on all labelled months"
   },
   "window": {
