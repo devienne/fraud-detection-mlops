@@ -1,5 +1,5 @@
 {
-  "model_version": "20261122-7295a64",
+  "model_version": "20261122-4cfb4f7",
   "rows": 44451,
   "mean_fraud_probability": 0.04097,
   "predicted_fraud": 2727,

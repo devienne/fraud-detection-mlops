@@ -65,7 +65,11 @@ The full analysis is in [notebooks/01_pilot_analysis.ipynb](notebooks/01_pilot_a
 │   ├── policy.py             # probability -> risk band / block decision
 │   ├── tracking.py           # MLflow run logging and model registry
 │   ├── predict.py            # batch scoring (FraudScorer, reused by the API)
-│   └── monitoring.py         # drift (PSI), segments, performance on matured labels, alerts, heartbeat
+│   ├── monitoring.py         # drift (PSI), segments, performance on matured labels, alerts, heartbeat, shadow summary
+│   ├── retrain.py            # challenger from matured labels, with its own thresholds (customer-impact budget)
+│   ├── compare.py            # champion vs challenger on an unseen holdout: overall, segments, cost, promotion rules
+│   ├── report.py             # one-page approval report for a human
+│   └── promote.py            # MLflow aliases: init / register / promote / rollback / status
 ├── api/
 │   ├── schemas.py            # request/response contract (Pydantic)
 │   ├── metrics.py            # Prometheus model metrics (scores, decisions, unseen values)
@@ -73,7 +77,10 @@ The full analysis is in [notebooks/01_pilot_analysis.ipynb](notebooks/01_pilot_a
 ├── Dockerfile                # API image (slim, non-root, health check)
 ├── docker-compose.yml        # local stack: API + Prometheus + Grafana + MLflow UI
 ├── monitoring/               # Prometheus config, Grafana datasource + dashboard (as code)
-├── docs/monitoring.md        # runbook: what each alert means and what to do
+├── docs/
+│   ├── architecture.md       # the system on one page, life of a model, design decisions, what changes at scale
+│   ├── model_card.md         # intended use, data, performance, fairness, limitations
+│   └── monitoring.md         # runbook: what each alert means and what to do
 ├── requirements-api.txt      # pinned runtime dependencies of the API image
 ├── scripts/
 │   ├── load_test.py          # latency percentiles and throughput
@@ -192,6 +199,7 @@ pre-commit install     # run the checks automatically on every `git commit`
 | `tests/test_data_contract.py` | **The data contract** catches each kind of bad data, plus implausible fraud rates. **Consistency:** the training contract (pandera) and the API contract (Pydantic) accept and reject exactly the same values. |
 | `tests/test_api.py` | **Service behaviour,** using a tiny fixture model in production format: health, model info, consistent decisions, 422 on invalid input, batch limits, API scores equal batch scores, every prediction logged, and refusal to start without a model. |
 | `tests/test_monitoring.py`, `tests/test_monitoring_job.py` | **Monitoring.** PSI maths, fixed reference bins, drift flagged or not flagged as expected. Concept drift (same inputs, fraud moved) is invisible to PSI but caught by labels. Alerts are grouped and actionable. Label delay is respected. Plus the prediction log format, the heartbeat and the command line. |
+| `tests/test_retrain.py`, `tests/test_compare.py`, `tests/test_report.py`, `tests/test_promote.py` | **Retraining and release.** The tests cover:<br>- no leakage in the time windows;<br>- the customer-impact budget;<br>- promotion rules that promote a real gain, block a hidden segment regression, noise and over-blocking, and require each model's own thresholds;<br>- the approval report's content;<br>- the full registry lifecycle (init, register, promote, rollback, override) on a temporary MLflow store. |
 | `tests/test_model_quality.py` | **Model quality gate** (`model` marker). It checks the test month against `params.yaml` → `quality_gate`: PR-AUC ≥ 0.60, ≥ 1.5× the rule baseline, recall ≥ 50%, precision ≥ 40%. A model with no skill must be rejected. |
 
 **pre-commit hooks** run before every commit:
@@ -217,6 +225,7 @@ Monitoring works at three speeds. The runbook, [docs/monitoring.md](docs/monitor
 | Once labels mature (30 days) | The same job, with labels joined | PR-AUC and recall at the block threshold, overall and per segment, against the model's evaluation baseline |
 
 ```bash
+python -m fraud_detection.promote init   # export the registry champion to deploy/champion (what the API serves)
 docker compose up -d --build     # API :8000, Prometheus :9090, Grafana :3000 (admin/admin), MLflow :5000
 python scripts/load_test.py --url http://127.0.0.1:8000   # traffic for the dashboard
 python -m fraud_detection.monitoring run                  # drift report -> logs/monitoring/monitoring.json
@@ -241,6 +250,46 @@ December's alert, as the on-call engineer receives it:
 - **The drift was *concept* drift.** The same kinds of transactions kept arriving; only which of them were fraud changed. Input and score drift checks (PSI) stayed quiet, as they should. Only label-based checks per segment caught it.
 - **Time to detect equals the label delay.** Replayed day by day with a 30-day label delay, the first alert fires on **1 January 2026**, 31 days after the shift began. Faster labels would detect it sooner: analyst review outcomes, customer disputes.
 - **Grouped alerts.** One cause raised 16 segment findings, delivered as one alert with the rest attached.
+
+## Retraining and safe release
+
+A retrained model is a **challenger** that must earn its place:
+
+```bash
+python -m fraud_detection.retrain --as-of 2026-01-31 --champion eval   # challenger + its own thresholds
+python -m fraud_detection.compare --champion eval                      # holdout comparison + recommendation
+python -m fraud_detection.report                                       # reports/approval_<date>.md for a human
+python -m fraud_detection.promote init                                 # champion alias -> deploy/champion
+python -m fraud_detection.promote register                             # challenger alias -> deploy/challenger (shadow)
+docker compose up -d                                                   # API serves the champion, shadows the challenger
+python -m fraud_detection.monitoring shadow                            # live agreement between the two
+python -m fraud_detection.promote promote --approved-by "<name>"       # after approval; rollback --reason "<why>"
+```
+
+**Promotion rules.** The challenger must pass all of them on a holdout that neither model trained on:
+1. PR-AUC gain of at least 0.01, with a 95% bootstrap interval above 0.
+2. Honest customers blocked: at most +0.5 percentage points.
+3. Business cost must not rise.
+4. No segment with 30 or more frauds loses more than 5 points of recall.
+
+**Replaying December 2025.** The challenger is trained as of 31 January 2026; the champion is the model trained on Jan–Sep. The holdout is Dec 18–31.
+
+| | Champion | Challenger |
+|---|---|---|
+| PR-AUC | 0.624 | **0.682** (gain 95% interval: +0.048 to +0.066) |
+| Fraud blocked | 61.4% | 64.3% |
+| Honest customers blocked | 2.37% | 2.73% |
+| Business cost | R$ 17,809 | R$ 17,655 |
+| Review queue (14 days) | 555 | 1,200 |
+
+The recommendation is **promote**. The [approval report](reports/approval_2026-01-31.md) raises three judgment calls:
+- **Analyst workload doubles.** The review queue grows from about 40 to 86 cases a day.
+- **E-commerce stays weak.** The challenger blocks only 35% of e-commerce fraud, and 0% at 20:00–21:00.
+- **Thresholds need a budget.** On cost alone, the challenger's block threshold would be 0.02, blocking 6.7% of honest customers. The customer-impact budget keeps it at 0.25.
+
+**Shadow mode.** On live traffic the challenger agreed with the champion on 96% of decisions; mostly it sent extra approvals to review. In one process, shadowing every request halved throughput, so the shadow is sampled (20%). At scale it would run as a separate consumer.
+
+The design, trade-offs and scale-up path are in [docs/architecture.md](docs/architecture.md). The model's intended use, segment impact and fairness are in [docs/model_card.md](docs/model_card.md).
 
 ## Roadmap
 

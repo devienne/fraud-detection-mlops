@@ -56,6 +56,18 @@ monitoring:                 # drift checks of a window of recent transactions vs
   max_recall_drop: 0.10      # alert if recall at the block threshold falls this much (overall or segment)
   max_fraud_share_shift: 0.15  # alert if a segment's share of all fraud moves this much (fraud pattern change)
 
+retrain:                    # challenger training, from labels matured by an "as of" date
+  holdout_days: 14           # most recent matured days: held out for champion vs challenger (never trained on)
+  validation_days: 14        # the days before the holdout: early stopping (and, next, thresholds)
+  train_window_days: 365     # how far back the challenger's training data goes
+  recent_days: 30            # last days of the training window up-weighted (fraud patterns move)
+  recent_weight: 3.0
+  # Promotion rule: the challenger must clear ALL of these on the holdout to be recommended.
+  min_pr_auc_gain: 0.01      # overall PR-AUC gain over the champion...
+  bootstrap_samples: 500     # ...and the gain's 95% bootstrap interval must be above 0 (not noise)
+  max_segment_recall_drop: 0.05   # no segment (with >= monitoring.min_segment_frauds frauds) loses more recall
+  max_false_block_rate_increase: 0.005  # legitimate transactions blocked: at most +0.5 point (customer impact)
+
 mlflow:
   tracking_uri: sqlite:///mlflow.db
   experiment: fraud-detection

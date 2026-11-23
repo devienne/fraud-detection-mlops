@@ -13,12 +13,17 @@ Design choices
   latency). It feeds monitoring and lets predictions be joined to fraud labels later.
 - GET /metrics exposes Prometheus metrics: service metrics (requests, status codes, latency) and
   model metrics (score distribution, decisions, unseen categories, scoring time); see api/metrics.py.
+- Shadow mode (optional, FRAUD_SHADOW_MODEL_DIR): a challenger scores the same transactions AFTER the
+  response is sent (background task), its results go to a separate log, and it never changes an answer.
+  If it fails to load or to score, the champion keeps serving; failures are counted.
 """
 
 from __future__ import annotations
 
 import json
+import logging
 import os
+import random
 import threading
 import time
 from contextlib import asynccontextmanager
@@ -26,7 +31,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from api import metrics
@@ -39,6 +44,25 @@ from fraud_detection.predict import FraudScorer
 MODEL_DIR = Path(os.getenv("FRAUD_MODEL_DIR", MODELS_DIR))
 POLICY_PATH = Path(os.getenv("FRAUD_POLICY_PATH", MODEL_DIR / "policy.json"))
 PREDICTION_LOG = Path(os.getenv("FRAUD_PREDICTION_LOG", PROJECT_ROOT / "logs" / "predictions.jsonl"))
+SHADOW_MODEL_DIR = Path(p) if (p := os.getenv("FRAUD_SHADOW_MODEL_DIR")) else None   # unset: shadow mode off
+SHADOW_LOG = Path(os.getenv("FRAUD_SHADOW_LOG", PREDICTION_LOG.parent / "shadow.jsonl"))
+# Share of requests also scored by the shadow model. In this single process it competes for the same
+# CPU as the champion (measured: shadowing every request halves throughput), so sample it; in
+# production the shadow would be a separate consumer of the request stream.
+SHADOW_SAMPLE_RATE = float(os.getenv("FRAUD_SHADOW_SAMPLE_RATE", "1.0"))
+
+log = logging.getLogger("fraud_api")
+
+
+def load_shadow(folder: Path | None) -> FraudScorer | None:
+    """The shadow model, or None. Never raises: a broken challenger must not stop the champion."""
+    if folder is None or not (folder / "final_model.txt").exists():
+        return None
+    try:
+        return FraudScorer(folder / "final_model.txt", folder / "metadata.json", folder / "policy.json")
+    except Exception:                                        # noqa: BLE001 - any failure just disables shadow mode
+        log.exception("shadow model in %s failed to load: shadow mode disabled", folder)
+        return None
 
 
 class PredictionLogger:
@@ -68,6 +92,9 @@ async def lifespan(app: FastAPI):
     )
     state["logger"] = PredictionLogger(PREDICTION_LOG)
     metrics.set_model_info(state["scorer"].version)
+    state["shadow"] = load_shadow(SHADOW_MODEL_DIR)
+    state["shadow_logger"] = PredictionLogger(SHADOW_LOG) if state["shadow"] else None
+    metrics.set_shadow_info(state["shadow"].version if state["shadow"] else None)
     yield
     state.clear()
 
@@ -131,6 +158,37 @@ def _score(transactions: list[Transaction], endpoint: str) -> list[FraudScore]:
     return results
 
 
+def _shadow(transactions: list[Transaction], results: list[FraudScore]) -> None:
+    """Score with the shadow model and log it next to the champion's decision. Runs after the response."""
+    shadow = state.get("shadow")
+    if shadow is None:
+        return
+    try:
+        start = time.perf_counter()
+        scored = shadow.score(pd.DataFrame([t.model_dump() for t in transactions]))
+        seconds = time.perf_counter() - start
+        decisions = [ACTIONS[b] for b in scored["risk_band"]]
+        logged_at = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
+        state["shadow_logger"].write([
+            {"logged_at": logged_at, "transaction_id": r.transaction_id,
+             "champion_version": r.model_version, "champion_probability": r.fraud_probability,
+             "champion_decision": r.decision, "shadow_version": shadow.version,
+             "shadow_probability": float(p), "shadow_decision": d}
+            for r, p, d in zip(results, scored["fraud_probability"], decisions, strict=True)
+        ])
+        metrics.record_shadow([r.decision for r in results], decisions, seconds)
+    except Exception:                                        # noqa: BLE001 - shadow failures never reach clients
+        metrics.SHADOW_ERRORS.inc()
+        log.exception("shadow scoring failed")
+
+
+def _score_and_shadow(transactions: list[Transaction], endpoint: str, tasks: BackgroundTasks) -> list[FraudScore]:
+    results = _score(transactions, endpoint)
+    if state.get("shadow") is not None and random.random() < SHADOW_SAMPLE_RATE:
+        tasks.add_task(_shadow, transactions, results)
+    return results
+
+
 @app.get("/health")
 def health() -> dict:
     """Liveness + readiness: the process is up AND the model is loaded."""
@@ -152,17 +210,20 @@ def model_info() -> dict:
         "evaluation": meta["evaluation"],
         "mlflow": meta.get("mlflow"),
         "api_version": __version__,
+        "shadow": None if (s := state.get("shadow")) is None else
+        {"model_version": s.version, "policy": s.policy.model_dump(), "log": str(SHADOW_LOG),
+         "sample_rate": SHADOW_SAMPLE_RATE},
     }
 
 
 @app.post("/predict", response_model=FraudScore)
-def predict(transaction: Transaction) -> FraudScore:
+def predict(transaction: Transaction, background_tasks: BackgroundTasks) -> FraudScore:
     """Score one transaction (the online authorisation case)."""
-    return _score([transaction], "/predict")[0]
+    return _score_and_shadow([transaction], "/predict", background_tasks)[0]
 
 
 @app.post("/predict/batch", response_model=BatchResponse)
-def predict_batch(request: BatchRequest) -> BatchResponse:
+def predict_batch(request: BatchRequest, background_tasks: BackgroundTasks) -> BatchResponse:
     """Score up to 1,000 transactions in one call."""
-    results = _score(request.transactions, "/predict/batch")
+    results = _score_and_shadow(request.transactions, "/predict/batch", background_tasks)
     return BatchResponse(model_version=_scorer().version, results=results)

@@ -8,6 +8,7 @@ Storage is local: run history in a SQLite file (mlflow.db), files in mlruns/ (bo
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 os.environ.setdefault("MLFLOW_DISABLE_AGENT_HINT", "1")
 
@@ -27,14 +28,22 @@ from fraud_detection.config import (
 )
 
 
+def artifact_root(tracking_uri: str) -> Path:
+    """Artifacts live next to the SQLite tracking database (<project>/mlruns for the real one)."""
+    prefix = "sqlite:///"
+    if tracking_uri.startswith(prefix):
+        return Path(tracking_uri[len(prefix):]).parent / "mlruns"
+    return PROJECT_ROOT / "mlruns"
+
+
 def _experiment_id(params: Params) -> str:
-    """Create the experiment on first use, with its artifacts anchored in <project>/mlruns."""
+    """Create the experiment on first use, with its artifacts anchored next to the tracking database."""
     mlflow.set_tracking_uri(params.mlflow.tracking_uri)
     experiment = mlflow.get_experiment_by_name(params.mlflow.experiment)
     if experiment is not None:
         return experiment.experiment_id
     return mlflow.create_experiment(params.mlflow.experiment,
-                                    artifact_location=(PROJECT_ROOT / "mlruns").as_uri())
+                                    artifact_location=artifact_root(params.mlflow.tracking_uri).as_uri())
 
 
 def log_run(params: Params, metadata: dict, metrics: dict, feature_sample: pd.DataFrame) -> dict:

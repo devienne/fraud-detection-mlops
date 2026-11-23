@@ -27,3 +27,5 @@ Thumbs.db
 .idea/
 
 # Raw data is versioned with DVC (see data/raw/*.dvc), not with git.
+models/challenger/
+deploy/

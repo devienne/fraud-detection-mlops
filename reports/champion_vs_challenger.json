@@ -1,0 +1,2812 @@
+{
+  "generated_at": "2026-11-22T23:47:27+00:00",
+  "holdout": {
+    "from": "2025-12-18 00:00:00",
+    "to": "2025-12-31 23:59:00"
+  },
+  "champion": "evaluation model (train Jan-Sep, early stopping Oct-Nov)",
+  "challenger": "challenger as of 2026-01-31 00:00:00 (276 trees)",
+  "rows": 20079,
+  "frauds": 1142,
+  "min_segment_frauds": 30,
+  "thresholds": {
+    "champion": {
+      "block": 0.28,
+      "review": 0.1525,
+      "chosen_on": "validation months [10, 11]"
+    },
+    "challenger": {
+      "block": 0.25,
+      "review": 0.0099,
+      "chosen_on": "challenger validation 2025-12-04 to 2025-12-18, false-block budget 0.0302"
+    }
+  },
+  "overall": {
+    "pr_auc": {
+      "champion": 0.6238,
+      "challenger": 0.6818,
+      "change": 0.058
+    },
+    "recall_at_block": {
+      "champion": 0.6138,
+      "challenger": 0.6427,
+      "change": 0.0289
+    },
+    "precision_at_block": {
+      "champion": 0.6101,
+      "challenger": 0.5867,
+      "change": -0.0234
+    },
+    "block_rate": {
+      "champion": 0.0572,
+      "challenger": 0.0623,
+      "change": 0.0051
+    },
+    "false_block_rate": {
+      "champion": 0.0237,
+      "challenger": 0.0273,
+      "change": 0.0036
+    },
+    "missed_fraud_amount": {
+      "champion": 13329.48,
+      "challenger": 12485.17,
+      "change": -844.31
+    },
+    "false_blocks": {
+      "champion": 448,
+      "challenger": 517,
+      "change": 69
+    },
+    "total_cost": {
+      "champion": 17809.48,
+      "challenger": 17655.17,
+      "change": -154.31
+    },
+    "review_queue": {
+      "champion": 555,
+      "challenger": 1200,
+      "change": 645
+    },
+    "review_rate": {
+      "champion": 0.0276,
+      "challenger": 0.0598,
+      "change": 0.0322
+    },
+    "review_fraud_rate": {
+      "champion": 0.2865,
+      "challenger": 0.2692,
+      "change": -0.0173
+    },
+    "recall_high_medium": {
+      "champion": 0.7531,
+      "challenger": 0.9256,
+      "change": 0.1725
+    }
+  },
+  "pr_auc_gain_bootstrap": {
+    "ci95": [
+      0.0483,
+      0.0658
+    ],
+    "samples": 500
+  },
+  "segments": [
+    {
+      "segment": "tipo_estabelecimento",
+      "value": "E-commerce",
+      "rows": 4136,
+      "frauds": 451,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.6474,
+        "challenger": 0.7621,
+        "change": 0.1147
+      },
+      "recall_at_block": {
+        "champion": 0.3082,
+        "challenger": 0.3459,
+        "change": 0.0377
+      },
+      "precision_at_block": {
+        "champion": 0.8129,
+        "challenger": 0.7919,
+        "change": -0.021
+      },
+      "block_rate": {
+        "champion": 0.0413,
+        "challenger": 0.0476,
+        "change": 0.0063
+      },
+      "false_block_rate": {
+        "champion": 0.0087,
+        "challenger": 0.0111,
+        "change": 0.0024
+      },
+      "missed_fraud_amount": {
+        "champion": 9731.49,
+        "challenger": 9226.41,
+        "change": -505.08
+      },
+      "false_blocks": {
+        "champion": 32,
+        "challenger": 41,
+        "change": 9
+      },
+      "total_cost": {
+        "champion": 10051.49,
+        "challenger": 9636.41,
+        "change": -415.08
+      },
+      "review_queue": {
+        "champion": 113,
+        "challenger": 343,
+        "change": 230
+      },
+      "review_rate": {
+        "champion": 0.0273,
+        "challenger": 0.0829,
+        "change": 0.0556
+      },
+      "review_fraud_rate": {
+        "champion": 0.5487,
+        "challenger": 0.6152,
+        "change": 0.0665
+      },
+      "recall_high_medium": {
+        "champion": 0.4457,
+        "challenger": 0.8137,
+        "change": 0.368
+      }
+    },
+    {
+      "segment": "tipo_estabelecimento",
+      "value": "Food & Beverage",
+      "rows": 4011,
+      "frauds": 248,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.7432,
+        "challenger": 0.7498,
+        "change": 0.0066
+      },
+      "recall_at_block": {
+        "champion": 0.8629,
+        "challenger": 0.879,
+        "change": 0.0161
+      },
+      "precision_at_block": {
+        "champion": 0.5602,
+        "challenger": 0.5383,
+        "change": -0.0219
+      },
+      "block_rate": {
+        "champion": 0.0952,
+        "challenger": 0.101,
+        "change": 0.0058
+      },
+      "false_block_rate": {
+        "champion": 0.0446,
+        "challenger": 0.0497,
+        "change": 0.0051
+      },
+      "missed_fraud_amount": {
+        "champion": 1074.99,
+        "challenger": 979.66,
+        "change": -95.33
+      },
+      "false_blocks": {
+        "champion": 168,
+        "challenger": 187,
+        "change": 19
+      },
+      "total_cost": {
+        "champion": 2754.99,
+        "challenger": 2849.66,
+        "change": 94.67
+      },
+      "review_queue": {
+        "champion": 139,
+        "challenger": 241,
+        "change": 102
+      },
+      "review_rate": {
+        "champion": 0.0347,
+        "challenger": 0.0601,
+        "change": 0.0254
+      },
+      "review_fraud_rate": {
+        "champion": 0.2086,
+        "challenger": 0.1203,
+        "change": -0.0883
+      },
+      "recall_high_medium": {
+        "champion": 0.9798,
+        "challenger": 0.996,
+        "change": 0.0162
+      }
+    },
+    {
+      "segment": "tipo_estabelecimento",
+      "value": "Fuel",
+      "rows": 2005,
+      "frauds": 174,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.8016,
+        "challenger": 0.7919,
+        "change": -0.0097
+      },
+      "recall_at_block": {
+        "champion": 0.8621,
+        "challenger": 0.8851,
+        "change": 0.023
+      },
+      "precision_at_block": {
+        "champion": 0.6122,
+        "challenger": 0.59,
+        "change": -0.0222
+      },
+      "block_rate": {
+        "champion": 0.1222,
+        "challenger": 0.1302,
+        "change": 0.008
+      },
+      "false_block_rate": {
+        "champion": 0.0519,
+        "challenger": 0.0584,
+        "change": 0.0065
+      },
+      "missed_fraud_amount": {
+        "champion": 652.53,
+        "challenger": 583.39,
+        "change": -69.14
+      },
+      "false_blocks": {
+        "champion": 95,
+        "challenger": 107,
+        "change": 12
+      },
+      "total_cost": {
+        "champion": 1602.53,
+        "challenger": 1653.39,
+        "change": 50.86
+      },
+      "review_queue": {
+        "champion": 79,
+        "challenger": 214,
+        "change": 135
+      },
+      "review_rate": {
+        "champion": 0.0394,
+        "challenger": 0.1067,
+        "change": 0.0673
+      },
+      "review_fraud_rate": {
+        "champion": 0.2278,
+        "challenger": 0.0935,
+        "change": -0.1343
+      },
+      "recall_high_medium": {
+        "champion": 0.9655,
+        "challenger": 1.0,
+        "change": 0.0345
+      }
+    },
+    {
+      "segment": "tipo_estabelecimento",
+      "value": "Pharmacy",
+      "rows": 2002,
+      "frauds": 48,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.5907,
+        "challenger": 0.5671,
+        "change": -0.0236
+      },
+      "recall_at_block": {
+        "champion": 0.7083,
+        "challenger": 0.75,
+        "change": 0.0417
+      },
+      "precision_at_block": {
+        "champion": 0.5075,
+        "challenger": 0.507,
+        "change": -0.0005
+      },
+      "block_rate": {
+        "champion": 0.0335,
+        "challenger": 0.0355,
+        "change": 0.002
+      },
+      "false_block_rate": {
+        "champion": 0.0169,
+        "challenger": 0.0179,
+        "change": 0.001
+      },
+      "missed_fraud_amount": {
+        "champion": 364.89,
+        "challenger": 327.35,
+        "change": -37.54
+      },
+      "false_blocks": {
+        "champion": 33,
+        "challenger": 35,
+        "change": 2
+      },
+      "total_cost": {
+        "champion": 694.89,
+        "challenger": 677.35,
+        "change": -17.54
+      },
+      "review_queue": {
+        "champion": 47,
+        "challenger": 81,
+        "change": 34
+      },
+      "review_rate": {
+        "champion": 0.0235,
+        "challenger": 0.0405,
+        "change": 0.017
+      },
+      "review_fraud_rate": {
+        "champion": 0.234,
+        "challenger": 0.1481,
+        "change": -0.0859
+      },
+      "recall_high_medium": {
+        "champion": 0.9375,
+        "challenger": 1.0,
+        "change": 0.0625
+      }
+    },
+    {
+      "segment": "tipo_estabelecimento",
+      "value": "Retail",
+      "rows": 3990,
+      "frauds": 118,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.6659,
+        "challenger": 0.6599,
+        "change": -0.006
+      },
+      "recall_at_block": {
+        "champion": 0.7542,
+        "challenger": 0.7712,
+        "change": 0.017
+      },
+      "precision_at_block": {
+        "champion": 0.5933,
+        "challenger": 0.5617,
+        "change": -0.0316
+      },
+      "block_rate": {
+        "champion": 0.0376,
+        "challenger": 0.0406,
+        "change": 0.003
+      },
+      "false_block_rate": {
+        "champion": 0.0158,
+        "challenger": 0.0183,
+        "change": 0.0025
+      },
+      "missed_fraud_amount": {
+        "champion": 836.91,
+        "challenger": 799.91,
+        "change": -37.0
+      },
+      "false_blocks": {
+        "champion": 61,
+        "challenger": 71,
+        "change": 10
+      },
+      "total_cost": {
+        "champion": 1446.91,
+        "challenger": 1509.91,
+        "change": 63.0
+      },
+      "review_queue": {
+        "champion": 89,
+        "challenger": 180,
+        "change": 91
+      },
+      "review_rate": {
+        "champion": 0.0223,
+        "challenger": 0.0451,
+        "change": 0.0228
+      },
+      "review_fraud_rate": {
+        "champion": 0.191,
+        "challenger": 0.15,
+        "change": -0.041
+      },
+      "recall_high_medium": {
+        "champion": 0.8983,
+        "challenger": 1.0,
+        "change": 0.1017
+      }
+    },
+    {
+      "segment": "tipo_estabelecimento",
+      "value": "Supermarket",
+      "rows": 3935,
+      "frauds": 103,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.6388,
+        "challenger": 0.6613,
+        "change": 0.0225
+      },
+      "recall_at_block": {
+        "champion": 0.7282,
+        "challenger": 0.767,
+        "change": 0.0388
+      },
+      "precision_at_block": {
+        "champion": 0.5597,
+        "challenger": 0.5097,
+        "change": -0.05
+      },
+      "block_rate": {
+        "champion": 0.0341,
+        "challenger": 0.0394,
+        "change": 0.0053
+      },
+      "false_block_rate": {
+        "champion": 0.0154,
+        "challenger": 0.0198,
+        "change": 0.0044
+      },
+      "missed_fraud_amount": {
+        "champion": 668.67,
+        "challenger": 568.45,
+        "change": -100.22
+      },
+      "false_blocks": {
+        "champion": 59,
+        "challenger": 76,
+        "change": 17
+      },
+      "total_cost": {
+        "champion": 1258.67,
+        "challenger": 1328.45,
+        "change": 69.78
+      },
+      "review_queue": {
+        "champion": 88,
+        "challenger": 141,
+        "change": 53
+      },
+      "review_rate": {
+        "champion": 0.0224,
+        "challenger": 0.0358,
+        "change": 0.0134
+      },
+      "review_fraud_rate": {
+        "champion": 0.25,
+        "challenger": 0.1702,
+        "change": -0.0798
+      },
+      "recall_high_medium": {
+        "champion": 0.9417,
+        "challenger": 1.0,
+        "change": 0.0583
+      }
+    },
+    {
+      "segment": "device_type",
+      "value": "desktop",
+      "rows": 6904,
+      "frauds": 285,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.5538,
+        "challenger": 0.6127,
+        "change": 0.0589
+      },
+      "recall_at_block": {
+        "champion": 0.5228,
+        "challenger": 0.5298,
+        "change": 0.007
+      },
+      "precision_at_block": {
+        "champion": 0.5984,
+        "challenger": 0.5853,
+        "change": -0.0131
+      },
+      "block_rate": {
+        "champion": 0.0361,
+        "challenger": 0.0374,
+        "change": 0.0013
+      },
+      "false_block_rate": {
+        "champion": 0.0151,
+        "challenger": 0.0162,
+        "change": 0.0011
+      },
+      "missed_fraud_amount": {
+        "champion": 4090.14,
+        "challenger": 4028.5,
+        "change": -61.64
+      },
+      "false_blocks": {
+        "champion": 100,
+        "challenger": 107,
+        "change": 7
+      },
+      "total_cost": {
+        "champion": 5090.14,
+        "challenger": 5098.5,
+        "change": 8.36
+      },
+      "review_queue": {
+        "champion": 249,
+        "challenger": 505,
+        "change": 256
+      },
+      "review_rate": {
+        "champion": 0.0361,
+        "challenger": 0.0731,
+        "change": 0.037
+      },
+      "review_fraud_rate": {
+        "champion": 0.2691,
+        "challenger": 0.2376,
+        "change": -0.0315
+      },
+      "recall_high_medium": {
+        "champion": 0.7579,
+        "challenger": 0.9509,
+        "change": 0.193
+      }
+    },
+    {
+      "segment": "device_type",
+      "value": "mobile",
+      "rows": 11217,
+      "frauds": 797,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.649,
+        "challenger": 0.7153,
+        "change": 0.0663
+      },
+      "recall_at_block": {
+        "champion": 0.6637,
+        "challenger": 0.7026,
+        "change": 0.0389
+      },
+      "precision_at_block": {
+        "champion": 0.6137,
+        "challenger": 0.5889,
+        "change": -0.0248
+      },
+      "block_rate": {
+        "champion": 0.0768,
+        "challenger": 0.0848,
+        "change": 0.008
+      },
+      "false_block_rate": {
+        "champion": 0.032,
+        "challenger": 0.0375,
+        "change": 0.0055
+      },
+      "missed_fraud_amount": {
+        "champion": 8202.78,
+        "challenger": 7420.11,
+        "change": -782.67
+      },
+      "false_blocks": {
+        "champion": 333,
+        "challenger": 391,
+        "change": 58
+      },
+      "total_cost": {
+        "champion": 11532.78,
+        "challenger": 11330.11,
+        "change": -202.67
+      },
+      "review_queue": {
+        "champion": 261,
+        "challenger": 561,
+        "change": 300
+      },
+      "review_rate": {
+        "champion": 0.0233,
+        "challenger": 0.05,
+        "change": 0.0267
+      },
+      "review_fraud_rate": {
+        "champion": 0.3103,
+        "challenger": 0.3119,
+        "change": 0.0016
+      },
+      "recall_high_medium": {
+        "champion": 0.7654,
+        "challenger": 0.9222,
+        "change": 0.1568
+      }
+    },
+    {
+      "segment": "device_type",
+      "value": "tablet",
+      "rows": 1958,
+      "frauds": 60,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.4638,
+        "challenger": 0.5229,
+        "change": 0.0591
+      },
+      "recall_at_block": {
+        "champion": 0.3833,
+        "challenger": 0.3833,
+        "change": 0.0
+      },
+      "precision_at_block": {
+        "champion": 0.6053,
+        "challenger": 0.5476,
+        "change": -0.0577
+      },
+      "block_rate": {
+        "champion": 0.0194,
+        "challenger": 0.0215,
+        "change": 0.0021
+      },
+      "false_block_rate": {
+        "champion": 0.0079,
+        "challenger": 0.01,
+        "change": 0.0021
+      },
+      "missed_fraud_amount": {
+        "champion": 1036.56,
+        "challenger": 1036.56,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 15,
+        "challenger": 19,
+        "change": 4
+      },
+      "total_cost": {
+        "champion": 1186.56,
+        "challenger": 1226.56,
+        "change": 40.0
+      },
+      "review_queue": {
+        "champion": 45,
+        "challenger": 134,
+        "change": 89
+      },
+      "review_rate": {
+        "champion": 0.023,
+        "challenger": 0.0684,
+        "change": 0.0454
+      },
+      "review_fraud_rate": {
+        "champion": 0.2444,
+        "challenger": 0.209,
+        "change": -0.0354
+      },
+      "recall_high_medium": {
+        "champion": 0.5667,
+        "challenger": 0.85,
+        "change": 0.2833
+      }
+    },
+    {
+      "segment": "cidade",
+      "value": "Belo Horizonte",
+      "rows": 2851,
+      "frauds": 153,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.5939,
+        "challenger": 0.648,
+        "change": 0.0541
+      },
+      "recall_at_block": {
+        "champion": 0.6536,
+        "challenger": 0.6993,
+        "change": 0.0457
+      },
+      "precision_at_block": {
+        "champion": 0.5747,
+        "challenger": 0.5515,
+        "change": -0.0232
+      },
+      "block_rate": {
+        "champion": 0.061,
+        "challenger": 0.068,
+        "change": 0.007
+      },
+      "false_block_rate": {
+        "champion": 0.0274,
+        "challenger": 0.0322,
+        "change": 0.0048
+      },
+      "missed_fraud_amount": {
+        "champion": 1695.43,
+        "challenger": 1488.02,
+        "change": -207.41
+      },
+      "false_blocks": {
+        "champion": 74,
+        "challenger": 87,
+        "change": 13
+      },
+      "total_cost": {
+        "champion": 2435.43,
+        "challenger": 2358.02,
+        "change": -77.41
+      },
+      "review_queue": {
+        "champion": 70,
+        "challenger": 155,
+        "change": 85
+      },
+      "review_rate": {
+        "champion": 0.0246,
+        "challenger": 0.0544,
+        "change": 0.0298
+      },
+      "review_fraud_rate": {
+        "champion": 0.3143,
+        "challenger": 0.2645,
+        "change": -0.0498
+      },
+      "recall_high_medium": {
+        "champion": 0.7974,
+        "challenger": 0.9673,
+        "change": 0.1699
+      }
+    },
+    {
+      "segment": "cidade",
+      "value": "Curitiba",
+      "rows": 2840,
+      "frauds": 158,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.636,
+        "challenger": 0.7092,
+        "change": 0.0732
+      },
+      "recall_at_block": {
+        "champion": 0.5696,
+        "challenger": 0.6329,
+        "change": 0.0633
+      },
+      "precision_at_block": {
+        "champion": 0.6122,
+        "challenger": 0.6211,
+        "change": 0.0089
+      },
+      "block_rate": {
+        "champion": 0.0518,
+        "challenger": 0.0567,
+        "change": 0.0049
+      },
+      "false_block_rate": {
+        "champion": 0.0213,
+        "challenger": 0.0227,
+        "change": 0.0014
+      },
+      "missed_fraud_amount": {
+        "champion": 1958.71,
+        "challenger": 1692.39,
+        "change": -266.32
+      },
+      "false_blocks": {
+        "champion": 57,
+        "challenger": 61,
+        "change": 4
+      },
+      "total_cost": {
+        "champion": 2528.71,
+        "challenger": 2302.39,
+        "change": -226.32
+      },
+      "review_queue": {
+        "champion": 85,
+        "challenger": 169,
+        "change": 84
+      },
+      "review_rate": {
+        "champion": 0.0299,
+        "challenger": 0.0595,
+        "change": 0.0296
+      },
+      "review_fraud_rate": {
+        "champion": 0.2824,
+        "challenger": 0.2544,
+        "change": -0.028
+      },
+      "recall_high_medium": {
+        "champion": 0.7215,
+        "challenger": 0.9051,
+        "change": 0.1836
+      }
+    },
+    {
+      "segment": "cidade",
+      "value": "Porto Alegre",
+      "rows": 2859,
+      "frauds": 155,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.5551,
+        "challenger": 0.6146,
+        "change": 0.0595
+      },
+      "recall_at_block": {
+        "champion": 0.5097,
+        "challenger": 0.529,
+        "change": 0.0193
+      },
+      "precision_at_block": {
+        "champion": 0.5809,
+        "challenger": 0.5578,
+        "change": -0.0231
+      },
+      "block_rate": {
+        "champion": 0.0476,
+        "challenger": 0.0514,
+        "change": 0.0038
+      },
+      "false_block_rate": {
+        "champion": 0.0211,
+        "challenger": 0.024,
+        "change": 0.0029
+      },
+      "missed_fraud_amount": {
+        "champion": 2127.61,
+        "challenger": 2072.38,
+        "change": -55.23
+      },
+      "false_blocks": {
+        "champion": 57,
+        "challenger": 65,
+        "change": 8
+      },
+      "total_cost": {
+        "champion": 2697.61,
+        "challenger": 2722.38,
+        "change": 24.77
+      },
+      "review_queue": {
+        "champion": 79,
+        "challenger": 186,
+        "change": 107
+      },
+      "review_rate": {
+        "champion": 0.0276,
+        "challenger": 0.0651,
+        "change": 0.0375
+      },
+      "review_fraud_rate": {
+        "champion": 0.3165,
+        "challenger": 0.3172,
+        "change": 0.0007
+      },
+      "recall_high_medium": {
+        "champion": 0.671,
+        "challenger": 0.9097,
+        "change": 0.2387
+      }
+    },
+    {
+      "segment": "cidade",
+      "value": "Recife",
+      "rows": 2915,
+      "frauds": 128,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.5248,
+        "challenger": 0.6217,
+        "change": 0.0969
+      },
+      "recall_at_block": {
+        "champion": 0.4531,
+        "challenger": 0.5078,
+        "change": 0.0547
+      },
+      "precision_at_block": {
+        "champion": 0.617,
+        "challenger": 0.6019,
+        "change": -0.0151
+      },
+      "block_rate": {
+        "champion": 0.0322,
+        "challenger": 0.037,
+        "change": 0.0048
+      },
+      "false_block_rate": {
+        "champion": 0.0129,
+        "challenger": 0.0154,
+        "change": 0.0025
+      },
+      "missed_fraud_amount": {
+        "champion": 2074.91,
+        "challenger": 1882.88,
+        "change": -192.03
+      },
+      "false_blocks": {
+        "champion": 36,
+        "challenger": 43,
+        "change": 7
+      },
+      "total_cost": {
+        "champion": 2434.91,
+        "challenger": 2312.88,
+        "change": -122.03
+      },
+      "review_queue": {
+        "champion": 77,
+        "challenger": 163,
+        "change": 86
+      },
+      "review_rate": {
+        "champion": 0.0264,
+        "challenger": 0.0559,
+        "change": 0.0295
+      },
+      "review_fraud_rate": {
+        "champion": 0.2597,
+        "challenger": 0.2699,
+        "change": 0.0102
+      },
+      "recall_high_medium": {
+        "champion": 0.6094,
+        "challenger": 0.8516,
+        "change": 0.2422
+      }
+    },
+    {
+      "segment": "cidade",
+      "value": "Rio de Janeiro",
+      "rows": 2801,
+      "frauds": 203,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.6965,
+        "challenger": 0.734,
+        "change": 0.0375
+      },
+      "recall_at_block": {
+        "champion": 0.7488,
+        "challenger": 0.7537,
+        "change": 0.0049
+      },
+      "precision_at_block": {
+        "champion": 0.5938,
+        "challenger": 0.5646,
+        "change": -0.0292
+      },
+      "block_rate": {
+        "champion": 0.0914,
+        "challenger": 0.0968,
+        "change": 0.0054
+      },
+      "false_block_rate": {
+        "champion": 0.04,
+        "challenger": 0.0454,
+        "change": 0.0054
+      },
+      "missed_fraud_amount": {
+        "champion": 1482.83,
+        "challenger": 1497.0,
+        "change": 14.17
+      },
+      "false_blocks": {
+        "champion": 104,
+        "challenger": 118,
+        "change": 14
+      },
+      "total_cost": {
+        "champion": 2522.83,
+        "challenger": 2677.0,
+        "change": 154.17
+      },
+      "review_queue": {
+        "champion": 79,
+        "challenger": 181,
+        "change": 102
+      },
+      "review_rate": {
+        "champion": 0.0282,
+        "challenger": 0.0646,
+        "change": 0.0364
+      },
+      "review_fraud_rate": {
+        "champion": 0.2278,
+        "challenger": 0.221,
+        "change": -0.0068
+      },
+      "recall_high_medium": {
+        "champion": 0.8374,
+        "challenger": 0.9507,
+        "change": 0.1133
+      }
+    },
+    {
+      "segment": "cidade",
+      "value": "Salvador",
+      "rows": 2862,
+      "frauds": 134,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.6512,
+        "challenger": 0.7251,
+        "change": 0.0739
+      },
+      "recall_at_block": {
+        "champion": 0.5224,
+        "challenger": 0.5522,
+        "change": 0.0298
+      },
+      "precision_at_block": {
+        "champion": 0.7368,
+        "challenger": 0.7048,
+        "change": -0.032
+      },
+      "block_rate": {
+        "champion": 0.0332,
+        "challenger": 0.0367,
+        "change": 0.0035
+      },
+      "false_block_rate": {
+        "champion": 0.0092,
+        "challenger": 0.0114,
+        "change": 0.0022
+      },
+      "missed_fraud_amount": {
+        "champion": 1981.54,
+        "challenger": 1861.44,
+        "change": -120.1
+      },
+      "false_blocks": {
+        "champion": 25,
+        "challenger": 31,
+        "change": 6
+      },
+      "total_cost": {
+        "champion": 2231.54,
+        "challenger": 2171.44,
+        "change": -60.1
+      },
+      "review_queue": {
+        "champion": 64,
+        "challenger": 143,
+        "change": 79
+      },
+      "review_rate": {
+        "champion": 0.0224,
+        "challenger": 0.05,
+        "change": 0.0276
+      },
+      "review_fraud_rate": {
+        "champion": 0.375,
+        "challenger": 0.3077,
+        "change": -0.0673
+      },
+      "recall_high_medium": {
+        "champion": 0.7015,
+        "challenger": 0.8806,
+        "change": 0.1791
+      }
+    },
+    {
+      "segment": "cidade",
+      "value": "São Paulo",
+      "rows": 2951,
+      "frauds": 211,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.7046,
+        "challenger": 0.7278,
+        "change": 0.0232
+      },
+      "recall_at_block": {
+        "champion": 0.7204,
+        "challenger": 0.7251,
+        "change": 0.0047
+      },
+      "precision_at_block": {
+        "champion": 0.6154,
+        "challenger": 0.5774,
+        "change": -0.038
+      },
+      "block_rate": {
+        "champion": 0.0837,
+        "challenger": 0.0898,
+        "change": 0.0061
+      },
+      "false_block_rate": {
+        "champion": 0.0347,
+        "challenger": 0.0409,
+        "change": 0.0062
+      },
+      "missed_fraud_amount": {
+        "champion": 2008.45,
+        "challenger": 1991.06,
+        "change": -17.39
+      },
+      "false_blocks": {
+        "champion": 95,
+        "challenger": 112,
+        "change": 17
+      },
+      "total_cost": {
+        "champion": 2958.45,
+        "challenger": 3111.06,
+        "change": 152.61
+      },
+      "review_queue": {
+        "champion": 101,
+        "challenger": 203,
+        "change": 102
+      },
+      "review_rate": {
+        "champion": 0.0342,
+        "challenger": 0.0688,
+        "change": 0.0346
+      },
+      "review_fraud_rate": {
+        "champion": 0.2574,
+        "challenger": 0.2562,
+        "change": -0.0012
+      },
+      "recall_high_medium": {
+        "champion": 0.8436,
+        "challenger": 0.9716,
+        "change": 0.128
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "0",
+      "rows": 838,
+      "frauds": 17,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": 0.8966,
+        "challenger": 0.9012,
+        "change": 0.0046
+      },
+      "recall_at_block": {
+        "champion": 1.0,
+        "challenger": 1.0,
+        "change": 0.0
+      },
+      "precision_at_block": {
+        "champion": 0.7391,
+        "challenger": 0.7391,
+        "change": 0.0
+      },
+      "block_rate": {
+        "champion": 0.0274,
+        "challenger": 0.0274,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0073,
+        "challenger": 0.0073,
+        "change": 0.0
+      },
+      "missed_fraud_amount": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 6,
+        "challenger": 6,
+        "change": 0
+      },
+      "total_cost": {
+        "champion": 60.0,
+        "challenger": 60.0,
+        "change": 0.0
+      },
+      "review_queue": {
+        "champion": 0,
+        "challenger": 5,
+        "change": 5
+      },
+      "review_rate": {
+        "champion": 0.0,
+        "challenger": 0.006,
+        "change": 0.006
+      },
+      "review_fraud_rate": {
+        "champion": null,
+        "challenger": 0.0,
+        "change": null
+      },
+      "recall_high_medium": {
+        "champion": 1.0,
+        "challenger": 1.0,
+        "change": 0.0
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "1",
+      "rows": 836,
+      "frauds": 19,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": 0.825,
+        "challenger": 0.8046,
+        "change": -0.0204
+      },
+      "recall_at_block": {
+        "champion": 0.9474,
+        "challenger": 0.9474,
+        "change": 0.0
+      },
+      "precision_at_block": {
+        "champion": 0.6667,
+        "challenger": 0.6429,
+        "change": -0.0238
+      },
+      "block_rate": {
+        "champion": 0.0323,
+        "challenger": 0.0335,
+        "change": 0.0012
+      },
+      "false_block_rate": {
+        "champion": 0.011,
+        "challenger": 0.0122,
+        "change": 0.0012
+      },
+      "missed_fraud_amount": {
+        "champion": 15.93,
+        "challenger": 15.93,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 9,
+        "challenger": 10,
+        "change": 1
+      },
+      "total_cost": {
+        "champion": 105.93,
+        "challenger": 115.93,
+        "change": 10.0
+      },
+      "review_queue": {
+        "champion": 3,
+        "challenger": 6,
+        "change": 3
+      },
+      "review_rate": {
+        "champion": 0.0036,
+        "challenger": 0.0072,
+        "change": 0.0036
+      },
+      "review_fraud_rate": {
+        "champion": 0.3333,
+        "challenger": 0.1667,
+        "change": -0.1666
+      },
+      "recall_high_medium": {
+        "champion": 1.0,
+        "challenger": 1.0,
+        "change": 0.0
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "2",
+      "rows": 837,
+      "frauds": 23,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": 0.8767,
+        "challenger": 0.8556,
+        "change": -0.0211
+      },
+      "recall_at_block": {
+        "champion": 0.913,
+        "challenger": 0.8696,
+        "change": -0.0434
+      },
+      "precision_at_block": {
+        "champion": 0.7778,
+        "challenger": 0.7407,
+        "change": -0.0371
+      },
+      "block_rate": {
+        "champion": 0.0323,
+        "challenger": 0.0323,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0074,
+        "challenger": 0.0086,
+        "change": 0.0012
+      },
+      "missed_fraud_amount": {
+        "champion": 153.48,
+        "challenger": 217.63,
+        "change": 64.15
+      },
+      "false_blocks": {
+        "champion": 6,
+        "challenger": 7,
+        "change": 1
+      },
+      "total_cost": {
+        "champion": 213.48,
+        "challenger": 287.63,
+        "change": 74.15
+      },
+      "review_queue": {
+        "champion": 4,
+        "challenger": 9,
+        "change": 5
+      },
+      "review_rate": {
+        "champion": 0.0048,
+        "challenger": 0.0108,
+        "change": 0.006
+      },
+      "review_fraud_rate": {
+        "champion": 0.5,
+        "challenger": 0.3333,
+        "change": -0.1667
+      },
+      "recall_high_medium": {
+        "champion": 1.0,
+        "challenger": 1.0,
+        "change": 0.0
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "3",
+      "rows": 836,
+      "frauds": 6,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": 0.7343,
+        "challenger": 0.7343,
+        "change": 0.0
+      },
+      "recall_at_block": {
+        "champion": 1.0,
+        "challenger": 1.0,
+        "change": 0.0
+      },
+      "precision_at_block": {
+        "champion": 0.6,
+        "challenger": 0.5455,
+        "change": -0.0545
+      },
+      "block_rate": {
+        "champion": 0.012,
+        "challenger": 0.0132,
+        "change": 0.0012
+      },
+      "false_block_rate": {
+        "champion": 0.0048,
+        "challenger": 0.006,
+        "change": 0.0012
+      },
+      "missed_fraud_amount": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 4,
+        "challenger": 5,
+        "change": 1
+      },
+      "total_cost": {
+        "champion": 40.0,
+        "challenger": 50.0,
+        "change": 10.0
+      },
+      "review_queue": {
+        "champion": 3,
+        "challenger": 5,
+        "change": 2
+      },
+      "review_rate": {
+        "champion": 0.0036,
+        "challenger": 0.006,
+        "change": 0.0024
+      },
+      "review_fraud_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "recall_high_medium": {
+        "champion": 1.0,
+        "challenger": 1.0,
+        "change": 0.0
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "4",
+      "rows": 838,
+      "frauds": 9,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": 0.8286,
+        "challenger": 0.8343,
+        "change": 0.0057
+      },
+      "recall_at_block": {
+        "champion": 1.0,
+        "challenger": 1.0,
+        "change": 0.0
+      },
+      "precision_at_block": {
+        "champion": 0.6,
+        "challenger": 0.5294,
+        "change": -0.0706
+      },
+      "block_rate": {
+        "champion": 0.0179,
+        "challenger": 0.0203,
+        "change": 0.0024
+      },
+      "false_block_rate": {
+        "champion": 0.0072,
+        "challenger": 0.0097,
+        "change": 0.0025
+      },
+      "missed_fraud_amount": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 6,
+        "challenger": 8,
+        "change": 2
+      },
+      "total_cost": {
+        "champion": 60.0,
+        "challenger": 80.0,
+        "change": 20.0
+      },
+      "review_queue": {
+        "champion": 4,
+        "challenger": 12,
+        "change": 8
+      },
+      "review_rate": {
+        "champion": 0.0048,
+        "challenger": 0.0143,
+        "change": 0.0095
+      },
+      "review_fraud_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "recall_high_medium": {
+        "champion": 1.0,
+        "challenger": 1.0,
+        "change": 0.0
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "5",
+      "rows": 838,
+      "frauds": 12,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": 0.8037,
+        "challenger": 0.8172,
+        "change": 0.0135
+      },
+      "recall_at_block": {
+        "champion": 0.9167,
+        "challenger": 0.9167,
+        "change": 0.0
+      },
+      "precision_at_block": {
+        "champion": 0.5789,
+        "challenger": 0.5789,
+        "change": 0.0
+      },
+      "block_rate": {
+        "champion": 0.0227,
+        "challenger": 0.0227,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0097,
+        "challenger": 0.0097,
+        "change": 0.0
+      },
+      "missed_fraud_amount": {
+        "champion": 10.13,
+        "challenger": 10.13,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 8,
+        "challenger": 8,
+        "change": 0
+      },
+      "total_cost": {
+        "champion": 90.13,
+        "challenger": 90.13,
+        "change": 0.0
+      },
+      "review_queue": {
+        "champion": 2,
+        "challenger": 8,
+        "change": 6
+      },
+      "review_rate": {
+        "champion": 0.0024,
+        "challenger": 0.0095,
+        "change": 0.0071
+      },
+      "review_fraud_rate": {
+        "champion": 0.5,
+        "challenger": 0.125,
+        "change": -0.375
+      },
+      "recall_high_medium": {
+        "champion": 1.0,
+        "challenger": 1.0,
+        "change": 0.0
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "6",
+      "rows": 836,
+      "frauds": 11,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": 0.9218,
+        "challenger": 0.9218,
+        "change": 0.0
+      },
+      "recall_at_block": {
+        "champion": 1.0,
+        "challenger": 1.0,
+        "change": 0.0
+      },
+      "precision_at_block": {
+        "champion": 0.5,
+        "challenger": 0.4783,
+        "change": -0.0217
+      },
+      "block_rate": {
+        "champion": 0.0263,
+        "challenger": 0.0275,
+        "change": 0.0012
+      },
+      "false_block_rate": {
+        "champion": 0.0133,
+        "challenger": 0.0145,
+        "change": 0.0012
+      },
+      "missed_fraud_amount": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 11,
+        "challenger": 12,
+        "change": 1
+      },
+      "total_cost": {
+        "champion": 110.0,
+        "challenger": 120.0,
+        "change": 10.0
+      },
+      "review_queue": {
+        "champion": 3,
+        "challenger": 10,
+        "change": 7
+      },
+      "review_rate": {
+        "champion": 0.0036,
+        "challenger": 0.012,
+        "change": 0.0084
+      },
+      "review_fraud_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "recall_high_medium": {
+        "champion": 1.0,
+        "challenger": 1.0,
+        "change": 0.0
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "7",
+      "rows": 834,
+      "frauds": 7,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": 0.673,
+        "challenger": 0.6771,
+        "change": 0.0041
+      },
+      "recall_at_block": {
+        "champion": 0.7143,
+        "challenger": 0.7143,
+        "change": 0.0
+      },
+      "precision_at_block": {
+        "champion": 0.5556,
+        "challenger": 0.5556,
+        "change": 0.0
+      },
+      "block_rate": {
+        "champion": 0.0108,
+        "challenger": 0.0108,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0048,
+        "challenger": 0.0048,
+        "change": 0.0
+      },
+      "missed_fraud_amount": {
+        "champion": 12.75,
+        "challenger": 12.75,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 4,
+        "challenger": 4,
+        "change": 0
+      },
+      "total_cost": {
+        "champion": 52.75,
+        "challenger": 52.75,
+        "change": 0.0
+      },
+      "review_queue": {
+        "champion": 1,
+        "challenger": 11,
+        "change": 10
+      },
+      "review_rate": {
+        "champion": 0.0012,
+        "challenger": 0.0132,
+        "change": 0.012
+      },
+      "review_fraud_rate": {
+        "champion": 0.0,
+        "challenger": 0.1818,
+        "change": 0.1818
+      },
+      "recall_high_medium": {
+        "champion": 0.7143,
+        "challenger": 1.0,
+        "change": 0.2857
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "8",
+      "rows": 835,
+      "frauds": 12,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": 0.9043,
+        "challenger": 0.8998,
+        "change": -0.0045
+      },
+      "recall_at_block": {
+        "champion": 1.0,
+        "challenger": 1.0,
+        "change": 0.0
+      },
+      "precision_at_block": {
+        "champion": 0.6316,
+        "challenger": 0.6316,
+        "change": 0.0
+      },
+      "block_rate": {
+        "champion": 0.0228,
+        "challenger": 0.0228,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0085,
+        "challenger": 0.0085,
+        "change": 0.0
+      },
+      "missed_fraud_amount": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 7,
+        "challenger": 7,
+        "change": 0
+      },
+      "total_cost": {
+        "champion": 70.0,
+        "challenger": 70.0,
+        "change": 0.0
+      },
+      "review_queue": {
+        "champion": 1,
+        "challenger": 7,
+        "change": 6
+      },
+      "review_rate": {
+        "champion": 0.0012,
+        "challenger": 0.0084,
+        "change": 0.0072
+      },
+      "review_fraud_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "recall_high_medium": {
+        "champion": 1.0,
+        "challenger": 1.0,
+        "change": 0.0
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "9",
+      "rows": 838,
+      "frauds": 0,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "recall_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "precision_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "missed_fraud_amount": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 0,
+        "challenger": 0,
+        "change": 0
+      },
+      "total_cost": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "review_queue": {
+        "champion": 0,
+        "challenger": 9,
+        "change": 9
+      },
+      "review_rate": {
+        "champion": 0.0,
+        "challenger": 0.0107,
+        "change": 0.0107
+      },
+      "review_fraud_rate": {
+        "champion": null,
+        "challenger": 0.0,
+        "change": null
+      },
+      "recall_high_medium": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "10",
+      "rows": 839,
+      "frauds": 0,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "recall_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "precision_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "missed_fraud_amount": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 0,
+        "challenger": 0,
+        "change": 0
+      },
+      "total_cost": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "review_queue": {
+        "champion": 0,
+        "challenger": 9,
+        "change": 9
+      },
+      "review_rate": {
+        "champion": 0.0,
+        "challenger": 0.0107,
+        "change": 0.0107
+      },
+      "review_fraud_rate": {
+        "champion": null,
+        "challenger": 0.0,
+        "change": null
+      },
+      "recall_high_medium": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "11",
+      "rows": 836,
+      "frauds": 0,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "recall_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "precision_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "missed_fraud_amount": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 0,
+        "challenger": 0,
+        "change": 0
+      },
+      "total_cost": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "review_queue": {
+        "champion": 0,
+        "challenger": 15,
+        "change": 15
+      },
+      "review_rate": {
+        "champion": 0.0,
+        "challenger": 0.0179,
+        "change": 0.0179
+      },
+      "review_fraud_rate": {
+        "champion": null,
+        "challenger": 0.0,
+        "change": null
+      },
+      "recall_high_medium": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "12",
+      "rows": 834,
+      "frauds": 56,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.7109,
+        "challenger": 0.7286,
+        "change": 0.0177
+      },
+      "recall_at_block": {
+        "champion": 0.8571,
+        "challenger": 0.8571,
+        "change": 0.0
+      },
+      "precision_at_block": {
+        "champion": 0.5517,
+        "challenger": 0.5333,
+        "change": -0.0184
+      },
+      "block_rate": {
+        "champion": 0.1043,
+        "challenger": 0.1079,
+        "change": 0.0036
+      },
+      "false_block_rate": {
+        "champion": 0.0501,
+        "challenger": 0.054,
+        "change": 0.0039
+      },
+      "missed_fraud_amount": {
+        "champion": 172.97,
+        "challenger": 172.97,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 39,
+        "challenger": 42,
+        "change": 3
+      },
+      "total_cost": {
+        "champion": 562.97,
+        "challenger": 592.97,
+        "change": 30.0
+      },
+      "review_queue": {
+        "champion": 28,
+        "challenger": 50,
+        "change": 22
+      },
+      "review_rate": {
+        "champion": 0.0336,
+        "challenger": 0.06,
+        "change": 0.0264
+      },
+      "review_fraud_rate": {
+        "champion": 0.25,
+        "challenger": 0.14,
+        "change": -0.11
+      },
+      "recall_high_medium": {
+        "champion": 0.9821,
+        "challenger": 0.9821,
+        "change": 0.0
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "13",
+      "rows": 838,
+      "frauds": 54,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.763,
+        "challenger": 0.7651,
+        "change": 0.0021
+      },
+      "recall_at_block": {
+        "champion": 0.8889,
+        "challenger": 0.8889,
+        "change": 0.0
+      },
+      "precision_at_block": {
+        "champion": 0.5581,
+        "challenger": 0.5393,
+        "change": -0.0188
+      },
+      "block_rate": {
+        "champion": 0.1026,
+        "challenger": 0.1062,
+        "change": 0.0036
+      },
+      "false_block_rate": {
+        "champion": 0.0485,
+        "challenger": 0.0523,
+        "change": 0.0038
+      },
+      "missed_fraud_amount": {
+        "champion": 243.92,
+        "challenger": 243.92,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 38,
+        "challenger": 41,
+        "change": 3
+      },
+      "total_cost": {
+        "champion": 623.92,
+        "challenger": 653.92,
+        "change": 30.0
+      },
+      "review_queue": {
+        "champion": 14,
+        "challenger": 34,
+        "change": 20
+      },
+      "review_rate": {
+        "champion": 0.0167,
+        "challenger": 0.0406,
+        "change": 0.0239
+      },
+      "review_fraud_rate": {
+        "champion": 0.3571,
+        "challenger": 0.1765,
+        "change": -0.1806
+      },
+      "recall_high_medium": {
+        "champion": 0.9815,
+        "challenger": 1.0,
+        "change": 0.0185
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "14",
+      "rows": 835,
+      "frauds": 57,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.8381,
+        "challenger": 0.8472,
+        "change": 0.0091
+      },
+      "recall_at_block": {
+        "champion": 0.8947,
+        "challenger": 0.8947,
+        "change": 0.0
+      },
+      "precision_at_block": {
+        "champion": 0.6,
+        "challenger": 0.6,
+        "change": 0.0
+      },
+      "block_rate": {
+        "champion": 0.1018,
+        "challenger": 0.1018,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0437,
+        "challenger": 0.0437,
+        "change": 0.0
+      },
+      "missed_fraud_amount": {
+        "champion": 219.23,
+        "challenger": 219.23,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 34,
+        "challenger": 34,
+        "change": 0
+      },
+      "total_cost": {
+        "champion": 559.23,
+        "challenger": 559.23,
+        "change": 0.0
+      },
+      "review_queue": {
+        "champion": 13,
+        "challenger": 31,
+        "change": 18
+      },
+      "review_rate": {
+        "champion": 0.0156,
+        "challenger": 0.0371,
+        "change": 0.0215
+      },
+      "review_fraud_rate": {
+        "champion": 0.3846,
+        "challenger": 0.1935,
+        "change": -0.1911
+      },
+      "recall_high_medium": {
+        "champion": 0.9825,
+        "challenger": 1.0,
+        "change": 0.0175
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "15",
+      "rows": 837,
+      "frauds": 0,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "recall_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "precision_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "missed_fraud_amount": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 0,
+        "challenger": 0,
+        "change": 0
+      },
+      "total_cost": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "review_queue": {
+        "champion": 0,
+        "challenger": 0,
+        "change": 0
+      },
+      "review_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "review_fraud_rate": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "recall_high_medium": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "16",
+      "rows": 836,
+      "frauds": 0,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "recall_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "precision_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "missed_fraud_amount": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 0,
+        "challenger": 0,
+        "change": 0
+      },
+      "total_cost": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "review_queue": {
+        "champion": 0,
+        "challenger": 0,
+        "change": 0
+      },
+      "review_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "review_fraud_rate": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "recall_high_medium": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "17",
+      "rows": 835,
+      "frauds": 0,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "recall_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "precision_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "missed_fraud_amount": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 0,
+        "challenger": 0,
+        "change": 0
+      },
+      "total_cost": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "review_queue": {
+        "champion": 0,
+        "challenger": 0,
+        "change": 0
+      },
+      "review_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "review_fraud_rate": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "recall_high_medium": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "18",
+      "rows": 837,
+      "frauds": 0,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "recall_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "precision_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "missed_fraud_amount": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 0,
+        "challenger": 0,
+        "change": 0
+      },
+      "total_cost": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "review_queue": {
+        "champion": 0,
+        "challenger": 0,
+        "change": 0
+      },
+      "review_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "review_fraud_rate": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "recall_high_medium": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "19",
+      "rows": 839,
+      "frauds": 0,
+      "enough_fraud": false,
+      "pr_auc": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "recall_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "precision_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "missed_fraud_amount": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 0,
+        "challenger": 0,
+        "change": 0
+      },
+      "total_cost": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "review_queue": {
+        "champion": 0,
+        "challenger": 0,
+        "change": 0
+      },
+      "review_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "review_fraud_rate": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "recall_high_medium": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "20",
+      "rows": 838,
+      "frauds": 111,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.3118,
+        "challenger": 0.8003,
+        "change": 0.4885
+      },
+      "recall_at_block": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "precision_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "missed_fraud_amount": {
+        "champion": 3271.63,
+        "challenger": 3271.63,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 0,
+        "challenger": 0,
+        "change": 0
+      },
+      "total_cost": {
+        "champion": 3271.63,
+        "challenger": 3271.63,
+        "change": 0.0
+      },
+      "review_queue": {
+        "champion": 0,
+        "challenger": 67,
+        "change": 67
+      },
+      "review_rate": {
+        "champion": 0.0,
+        "challenger": 0.08,
+        "change": 0.08
+      },
+      "review_fraud_rate": {
+        "champion": null,
+        "challenger": 0.8806,
+        "change": null
+      },
+      "recall_high_medium": {
+        "champion": 0.0,
+        "challenger": 0.5315,
+        "change": 0.5315
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "21",
+      "rows": 835,
+      "frauds": 121,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.3539,
+        "challenger": 0.7893,
+        "change": 0.4354
+      },
+      "recall_at_block": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "precision_at_block": {
+        "champion": null,
+        "challenger": null,
+        "change": null
+      },
+      "block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "false_block_rate": {
+        "champion": 0.0,
+        "challenger": 0.0,
+        "change": 0.0
+      },
+      "missed_fraud_amount": {
+        "champion": 3752.48,
+        "challenger": 3752.48,
+        "change": 0.0
+      },
+      "false_blocks": {
+        "champion": 0,
+        "challenger": 0,
+        "change": 0
+      },
+      "total_cost": {
+        "champion": 3752.48,
+        "challenger": 3752.48,
+        "change": 0.0
+      },
+      "review_queue": {
+        "champion": 0,
+        "challenger": 124,
+        "change": 124
+      },
+      "review_rate": {
+        "champion": 0.0,
+        "challenger": 0.1485,
+        "change": 0.1485
+      },
+      "review_fraud_rate": {
+        "champion": null,
+        "challenger": 0.7177,
+        "change": null
+      },
+      "recall_high_medium": {
+        "champion": 0.0,
+        "challenger": 0.7355,
+        "change": 0.7355
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "22",
+      "rows": 837,
+      "frauds": 327,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.6962,
+        "challenger": 0.7102,
+        "change": 0.014
+      },
+      "recall_at_block": {
+        "champion": 0.7156,
+        "challenger": 0.7676,
+        "change": 0.052
+      },
+      "precision_at_block": {
+        "champion": 0.6207,
+        "challenger": 0.6005,
+        "change": -0.0202
+      },
+      "block_rate": {
+        "champion": 0.4504,
+        "challenger": 0.4994,
+        "change": 0.049
+      },
+      "false_block_rate": {
+        "champion": 0.2804,
+        "challenger": 0.3275,
+        "change": 0.0471
+      },
+      "missed_fraud_amount": {
+        "champion": 2951.88,
+        "challenger": 2534.94,
+        "change": -416.94
+      },
+      "false_blocks": {
+        "champion": 143,
+        "challenger": 167,
+        "change": 24
+      },
+      "total_cost": {
+        "champion": 4381.88,
+        "challenger": 4204.94,
+        "change": -176.94
+      },
+      "review_queue": {
+        "champion": 238,
+        "challenger": 379,
+        "change": 141
+      },
+      "review_rate": {
+        "champion": 0.2843,
+        "challenger": 0.4528,
+        "change": 0.1685
+      },
+      "review_fraud_rate": {
+        "champion": 0.3025,
+        "challenger": 0.2005,
+        "change": -0.102
+      },
+      "recall_high_medium": {
+        "champion": 0.9358,
+        "challenger": 1.0,
+        "change": 0.0642
+      }
+    },
+    {
+      "segment": "hour",
+      "value": "23",
+      "rows": 837,
+      "frauds": 300,
+      "enough_fraud": true,
+      "pr_auc": {
+        "champion": 0.7069,
+        "challenger": 0.7165,
+        "change": 0.0096
+      },
+      "recall_at_block": {
+        "champion": 0.7,
+        "challenger": 0.7567,
+        "change": 0.0567
+      },
+      "precision_at_block": {
+        "champion": 0.6122,
+        "challenger": 0.5776,
+        "change": -0.0346
+      },
+      "block_rate": {
+        "champion": 0.4098,
+        "challenger": 0.4695,
+        "change": 0.0597
+      },
+      "false_block_rate": {
+        "champion": 0.2477,
+        "challenger": 0.3091,
+        "change": 0.0614
+      },
+      "missed_fraud_amount": {
+        "champion": 2525.08,
+        "challenger": 2033.56,
+        "change": -491.52
+      },
+      "false_blocks": {
+        "champion": 133,
+        "challenger": 166,
+        "change": 33
+      },
+      "total_cost": {
+        "champion": 3855.08,
+        "challenger": 3693.56,
+        "change": -161.52
+      },
+      "review_queue": {
+        "champion": 241,
+        "challenger": 409,
+        "change": 168
+      },
+      "review_rate": {
+        "champion": 0.2879,
+        "challenger": 0.4886,
+        "change": 0.2007
+      },
+      "review_fraud_rate": {
+        "champion": 0.2739,
+        "challenger": 0.1785,
+        "change": -0.0954
+      },
+      "recall_high_medium": {
+        "champion": 0.92,
+        "challenger": 1.0,
+        "change": 0.08
+      }
+    }
+  ],
+  "recommendation": {
+    "decision": "promote",
+    "reasons": [],
+    "segment_regressions": [],
+    "checks": [
+      {
+        "rule": "PR-AUC gain",
+        "value": "+0.0580",
+        "limit": ">= +0.0100",
+        "passed": true
+      },
+      {
+        "rule": "PR-AUC gain is not noise (95% bootstrap interval)",
+        "value": "[0.0483, 0.0658]",
+        "limit": "lower bound > 0",
+        "passed": true
+      },
+      {
+        "rule": "Honest customers blocked (false-block rate change)",
+        "value": "+0.36%",
+        "limit": "<= +0.50%",
+        "passed": true
+      },
+      {
+        "rule": "Business cost (missed fraud + false blocks)",
+        "value": "R$ 17,809 -> R$ 17,655",
+        "limit": "must not rise",
+        "passed": true
+      },
+      {
+        "rule": "No segment loses more than 5% recall",
+        "value": "none",
+        "limit": "segments with >= 30 frauds",
+        "passed": true
+      }
+    ]
+  }
+}

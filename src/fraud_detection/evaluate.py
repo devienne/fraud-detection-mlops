@@ -32,14 +32,27 @@ from fraud_detection.config import (
 from fraud_detection.data import load_history
 from fraud_detection.features import make_features
 from fraud_detection.policy import BANDS, Policy
-from fraud_detection.tracking import log_run
 from fraud_detection.train import split_masks
 
 
-def choose_block_threshold(y, probs, amounts, params: Params) -> float:
-    """Threshold minimising (missed fraud amount + cost per false block) on the given data."""
+def false_block_rate(y, probs, threshold: float) -> float:
+    """Share of LEGITIMATE transactions that a block threshold would block (customer impact)."""
+    legit = y == 0
+    return float((probs[legit] >= threshold).mean()) if legit.any() else 0.0
+
+
+def choose_block_threshold(y, probs, amounts, params: Params, max_false_block_rate: float | None = None) -> float:
+    """Threshold minimising (missed fraud amount + cost per false block) on the given data.
+
+    With `max_false_block_rate`, only thresholds that block at most that share of legitimate
+    transactions are allowed: lowest cost WITHIN a customer-impact budget. If no threshold fits,
+    the strictest one in the grid is returned (fewest customers blocked).
+    """
     g = params.policy.threshold_grid
     grid = np.arange(g.start, g.stop, g.step).round(6)
+    if max_false_block_rate is not None:
+        allowed = [t for t in grid if false_block_rate(y, probs, t) <= max_false_block_rate]
+        grid = np.array(allowed) if allowed else grid[-1:]
 
     def total_cost(t: float) -> float:
         flagged = probs >= t
@@ -54,6 +67,23 @@ def choose_review_threshold(y, probs, recall_target: float) -> float:
     """Highest threshold that still flags `recall_target` of fraud into High + Medium."""
     _, recall, thresholds = precision_recall_curve(y, probs)
     return float(thresholds[np.where(recall[:-1] >= recall_target)[0][-1]])
+
+
+def fit_policy(y, probs, amounts, params: Params, chosen_on: str,
+               max_false_block_rate: float | None = None) -> Policy:
+    """The decision policy for a model: both thresholds chosen on its validation data.
+
+    Used for the champion (evaluate) and for every challenger (retrain): a new model gets new
+    thresholds, chosen by the same rules. Challengers also get a customer-impact budget.
+    """
+    block = choose_block_threshold(y, probs, amounts, params, max_false_block_rate)
+    return Policy(
+        block_threshold=block,
+        review_threshold=min(choose_review_threshold(y, probs, params.policy.review_recall_target), block),
+        false_block_cost=params.policy.false_block_cost,
+        review_recall_target=params.policy.review_recall_target,
+        chosen_on=chosen_on,
+    )
 
 
 def business_metrics(y, probs, amounts, policy: Policy) -> dict:
@@ -120,13 +150,8 @@ def evaluate(params: Params) -> dict:
     probs = model.predict(X)
 
     # --- Decisions: thresholds chosen on the VALIDATION months only
-    policy = Policy(
-        block_threshold=choose_block_threshold(y[va], probs[va], amounts[va], params),
-        review_threshold=choose_review_threshold(y[va], probs[va], params.policy.review_recall_target),
-        false_block_cost=params.policy.false_block_cost,
-        review_recall_target=params.policy.review_recall_target,
-        chosen_on=f"validation months {params.split.validation_months}",
-    )
+    policy = fit_policy(y[va], probs[va], amounts[va], params,
+                        chosen_on=f"validation months {params.split.validation_months}")
     policy.save(POLICY_PATH)
 
     # --- Reporting: everything measured on the TEST month only
@@ -152,6 +177,9 @@ def evaluate(params: Params) -> dict:
     # Experiment tracking + registry; the registry reference is added to the metadata file.
     final_sample = make_features(history.head(5), info["final_model"]["category_levels"],
                                  info["feature_columns"], params.data.timestamp_col)
+    # Imported here: the threshold functions above are reused by retrain.py without needing MLflow.
+    from fraud_detection.tracking import log_run
+
     metadata["mlflow"] = log_run(params, metadata, metrics, final_sample)
     METADATA_PATH.write_text(json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8")
     return metrics

@@ -17,6 +17,7 @@ Commands:
   python -m fraud_detection.monitoring run [--window logs/predictions.jsonl] [--labels labels.csv]
                                            [--as-of 2026-02-01] [--fail-on-alert]
   python -m fraud_detection.monitoring heartbeat --max-age-hours 2   # exit 1 if the monitor stopped running
+  python -m fraud_detection.monitoring shadow                        # challenger vs champion on live traffic
 
 PSI (Population Stability Index): split a feature into bins, compare the share of rows in each bin,
     PSI = sum over bins of (current% - reference%) * ln(current% / reference%)
@@ -46,6 +47,7 @@ from fraud_detection.config import (
     MONITORING_REPORT_PATH,
     PREDICTION_LOG_PATH,
     REFERENCE_PATH,
+    SHADOW_LOG_PATH,
     TRAINING_INFO_PATH,
     MonitoringConfig,
     Params,
@@ -494,6 +496,33 @@ def check_heartbeat(path: Path, max_age_hours: float, now: datetime | None = Non
     return True, f"monitor alive: last success {age:.1f} h ago"
 
 
+# --------------------------------------------------------------------------- shadow mode
+def shadow_summary(path: Path) -> dict:
+    """How the shadow model would have decided on live traffic, compared with the champion.
+
+    Read before promotion: a challenger that looked good on the holdout but behaves very differently
+    on live traffic (e.g. blocks twice as much) is a reason to stop and look.
+    """
+    with open(path, encoding="utf-8") as f:
+        df = pd.DataFrame([json.loads(line) for line in f if line.strip()])
+    if df.empty:
+        raise ValueError(f"no shadow records in {path}")
+    agreement = pd.crosstab(df["champion_decision"], df["shadow_decision"])
+    rate = {side: df[f"{side}_decision"].value_counts(normalize=True).round(4).to_dict()
+            for side in ("champion", "shadow")}
+    return {
+        "rows": int(len(df)),
+        "from": str(df["logged_at"].min()), "to": str(df["logged_at"].max()),
+        "champion_versions": df["champion_version"].value_counts().to_dict(),
+        "shadow_versions": df["shadow_version"].value_counts().to_dict(),
+        "decision_rates": rate,
+        "agreement_rate": round(float((df["champion_decision"] == df["shadow_decision"]).mean()), 4),
+        "agreement_matrix": {c: {s: int(agreement.loc[c, s]) for s in agreement.columns} for c in agreement.index},
+        "newly_blocked": int(((df["shadow_decision"] == "block") & (df["champion_decision"] != "block")).sum()),
+        "no_longer_blocked": int(((df["champion_decision"] == "block") & (df["shadow_decision"] != "block")).sum()),
+    }
+
+
 # --------------------------------------------------------------------------- reference for the released model
 def build_release_reference(params: Params) -> dict:
     """Reference for the released model, saved next to it.
@@ -559,7 +588,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     hb = sub.add_parser("heartbeat", help="exit 1 if the monitor has not succeeded recently")
     hb.add_argument("--path", type=Path, default=HEARTBEAT_PATH)
     hb.add_argument("--max-age-hours", type=float, default=2.0)
+    sh = sub.add_parser("shadow", help="summarise the shadow model's decisions vs the champion's")
+    sh.add_argument("--log", type=Path, default=SHADOW_LOG_PATH)
     args = parser.parse_args(argv)
+
+    if args.command == "shadow":
+        s = shadow_summary(args.log)
+        print(json.dumps(s, indent=2, ensure_ascii=False))
+        return 0
 
     if args.command == "heartbeat":
         ok, message = check_heartbeat(args.path, args.max_age_hours)

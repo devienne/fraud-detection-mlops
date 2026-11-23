@@ -16,7 +16,8 @@ from fastapi.testclient import TestClient
 from prometheus_client import REGISTRY
 
 import api.main as api_main
-from fraud_detection.policy import ACTIONS
+from fraud_detection.monitoring import shadow_summary
+from fraud_detection.policy import ACTIONS, Policy
 from fraud_detection.predict import FraudScorer
 from tests.model_fixture import COLUMNS, build_test_model
 
@@ -37,7 +38,31 @@ def client(model_dir, tmp_path, monkeypatch):
     monkeypatch.setattr(api_main, "MODEL_DIR", model_dir)
     monkeypatch.setattr(api_main, "POLICY_PATH", model_dir / "policy.json")
     monkeypatch.setattr(api_main, "PREDICTION_LOG", tmp_path / "predictions.jsonl")
+    monkeypatch.setattr(api_main, "SHADOW_MODEL_DIR", None)
     with TestClient(api_main.app) as c:          # `with` runs the startup (model loading)
+        yield c
+
+
+@pytest.fixture(scope="module")
+def shadow_dir(tmp_path_factory):
+    """A second model bundle with its own version and stricter thresholds: the challenger in shadow."""
+    folder = build_test_model(tmp_path_factory.mktemp("shadow"))
+    meta = json.loads((folder / "metadata.json").read_text(encoding="utf-8"))
+    meta["model_version"] = "shadow-0002"
+    (folder / "metadata.json").write_text(json.dumps(meta, ensure_ascii=False), encoding="utf-8")
+    Policy(block_threshold=0.3, review_threshold=0.1, false_block_cost=10.0, review_recall_target=0.95,
+           chosen_on="test shadow").save(folder / "policy.json")
+    return folder
+
+
+@pytest.fixture
+def shadow_client(model_dir, shadow_dir, tmp_path, monkeypatch):
+    monkeypatch.setattr(api_main, "MODEL_DIR", model_dir)
+    monkeypatch.setattr(api_main, "POLICY_PATH", model_dir / "policy.json")
+    monkeypatch.setattr(api_main, "PREDICTION_LOG", tmp_path / "predictions.jsonl")
+    monkeypatch.setattr(api_main, "SHADOW_MODEL_DIR", shadow_dir)
+    monkeypatch.setattr(api_main, "SHADOW_LOG", tmp_path / "shadow.jsonl")
+    with TestClient(api_main.app) as c:
         yield c
 
 
@@ -182,6 +207,88 @@ def test_every_prediction_is_logged(client, tmp_path):
         assert {"logged_at", "endpoint", "latency_ms", "inputs", "transaction_id",
                 "fraud_probability", "risk_band", "decision", "model_version"} <= set(rec)
     assert records[0]["inputs"]["cidade"] == "São Paulo"          # text kept intact (no encoding damage)
+
+
+# --------------------------------------------------------------------------- shadow mode
+NIGHT_TXS = [{**VALID, "transaction_id": f"tx-{i}", "datahora_transacao": f"2026-01-15T{h:02d}:00:00",
+              "is_new_device": bool(i % 2)} for i, h in enumerate([1, 3, 12, 22, 23, 23])]
+
+
+def test_shadow_mode_never_changes_the_answer(client, shadow_dir, tmp_path, monkeypatch):
+    without = client.post("/predict/batch", json={"transactions": NIGHT_TXS}).json()
+    assert client.get("/model-info").json()["shadow"] is None
+    # restart the same service with a shadow model (one process holds one configuration)
+    monkeypatch.setattr(api_main, "SHADOW_MODEL_DIR", shadow_dir)
+    monkeypatch.setattr(api_main, "SHADOW_LOG", tmp_path / "shadow.jsonl")
+    with TestClient(api_main.app) as shadow_client:
+        with_shadow = shadow_client.post("/predict/batch", json={"transactions": NIGHT_TXS}).json()
+        assert shadow_client.get("/model-info").json()["shadow"]["model_version"] == "shadow-0002"
+    assert with_shadow == without                                     # same champion answers, byte for byte
+
+
+def test_shadow_decisions_are_logged_next_to_the_champion(shadow_client, tmp_path):
+    before = sum(s.value for f in REGISTRY.collect() if f.name == "fraud_shadow_comparisons" for s in f.samples
+                 if s.name == "fraud_shadow_comparisons_total")
+    shadow_client.post("/predict/batch", json={"transactions": NIGHT_TXS})
+    rows = [json.loads(line) for line in (tmp_path / "shadow.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert [r["transaction_id"] for r in rows] == [t["transaction_id"] for t in NIGHT_TXS]
+    for r in rows:
+        assert r["champion_version"] == "test-0001" and r["shadow_version"] == "shadow-0002"
+        assert r["shadow_decision"] in {"block", "review", "approve"}
+    # stricter thresholds in the shadow: it should block at least as often as the champion
+    assert sum(r["shadow_decision"] == "block" for r in rows) >= sum(r["champion_decision"] == "block" for r in rows)
+    after = sum(s.value for f in REGISTRY.collect() if f.name == "fraud_shadow_comparisons" for s in f.samples
+                if s.name == "fraud_shadow_comparisons_total")
+    assert after == before + len(NIGHT_TXS)
+    assert 'fraud_shadow_model_info{model_version="shadow-0002"} 1.0' in shadow_client.get("/metrics").text
+    # the champion's own prediction log is unchanged in format (no shadow fields mixed in)
+    champion_log = (tmp_path / "predictions.jsonl").read_text(encoding="utf-8").splitlines()
+    assert all("shadow" not in json.loads(line) for line in champion_log)
+    # the monitor can summarise the shadow log
+    summary = shadow_summary(tmp_path / "shadow.jsonl")
+    assert summary["rows"] == len(NIGHT_TXS) and summary["shadow_versions"] == {"shadow-0002": len(NIGHT_TXS)}
+    assert sum(sum(row.values()) for row in summary["agreement_matrix"].values()) == len(NIGHT_TXS)
+    assert summary["newly_blocked"] >= 0 and 0 <= summary["agreement_rate"] <= 1
+
+
+def test_shadow_sample_rate_limits_shadow_work(model_dir, shadow_dir, tmp_path, monkeypatch):
+    monkeypatch.setattr(api_main, "MODEL_DIR", model_dir)
+    monkeypatch.setattr(api_main, "POLICY_PATH", model_dir / "policy.json")
+    monkeypatch.setattr(api_main, "PREDICTION_LOG", tmp_path / "predictions.jsonl")
+    monkeypatch.setattr(api_main, "SHADOW_MODEL_DIR", shadow_dir)
+    monkeypatch.setattr(api_main, "SHADOW_LOG", tmp_path / "shadow.jsonl")
+    monkeypatch.setattr(api_main, "SHADOW_SAMPLE_RATE", 0.0)            # shadow loaded, but samples nothing
+    with TestClient(api_main.app) as c:
+        for _ in range(5):
+            assert c.post("/predict", json=VALID).status_code == 200
+        assert c.get("/model-info").json()["shadow"]["sample_rate"] == 0.0
+    assert not (tmp_path / "shadow.jsonl").exists() or not (tmp_path / "shadow.jsonl").read_text(encoding="utf-8")
+
+
+def test_a_failing_shadow_never_breaks_serving(shadow_client, monkeypatch):
+    errors = _metric("fraud_shadow_errors_total")
+
+    def explode(raw):
+        raise RuntimeError("shadow bug")
+
+    monkeypatch.setattr(api_main.state["shadow"], "score", explode)
+    r = shadow_client.post("/predict", json=VALID)
+    assert r.status_code == 200 and r.json()["model_version"] == "test-0001"
+    assert _metric("fraud_shadow_errors_total") == errors + 1
+
+
+def test_a_broken_shadow_bundle_disables_shadow_mode_but_the_api_starts(model_dir, tmp_path, monkeypatch):
+    broken = tmp_path / "broken"
+    broken.mkdir()
+    (broken / "final_model.txt").write_text("not a model", encoding="utf-8")
+    monkeypatch.setattr(api_main, "MODEL_DIR", model_dir)
+    monkeypatch.setattr(api_main, "POLICY_PATH", model_dir / "policy.json")
+    monkeypatch.setattr(api_main, "PREDICTION_LOG", tmp_path / "predictions.jsonl")
+    monkeypatch.setattr(api_main, "SHADOW_MODEL_DIR", broken)
+    with TestClient(api_main.app) as c:
+        assert c.get("/health").status_code == 200
+        assert c.get("/model-info").json()["shadow"] is None
+        assert c.post("/predict", json=VALID).status_code == 200
 
 
 def test_service_refuses_to_start_without_a_model(tmp_path, monkeypatch):

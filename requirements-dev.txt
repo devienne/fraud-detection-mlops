@@ -6,6 +6,7 @@
 # pipeline code imported by the tests
 scikit-learn==1.7.2
 matplotlib==3.10.9
+mlflow==3.18.0          # registry release tests (temporary local store)
 
 # tests and quality
 pytest==9.2.0

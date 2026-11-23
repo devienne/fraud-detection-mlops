@@ -74,6 +74,22 @@ def dvc_data_hash(params: Params) -> str | None:
     return yaml.safe_load(pointer.read_text(encoding="utf-8"))["outs"][0]["md5"]
 
 
+def fit_early_stopped(X_tr: pd.DataFrame, y_tr: np.ndarray, X_va: pd.DataFrame, y_va: np.ndarray,
+                      params: Params, sample_weight: np.ndarray | None = None) -> lgb.LGBMClassifier:
+    """LightGBM trained until the validation PR-AUC (average precision) stops improving.
+
+    Shared by the champion's evaluation model (train.py) and every challenger (retrain.py), so both
+    are built exactly the same way.
+    """
+    model = lgb.LGBMClassifier(n_estimators=params.model.max_estimators, **params.model.lgbm_params())
+    model.fit(
+        X_tr, y_tr, sample_weight=sample_weight,
+        eval_set=[(X_va, y_va)], eval_metric="average_precision",
+        callbacks=[lgb.early_stopping(params.model.early_stopping_rounds, verbose=False)],
+    )
+    return model
+
+
 def train(params: Params) -> dict:
     target, cols = params.data.target, params.features.columns
     history = load_history(params)
@@ -85,12 +101,7 @@ def train(params: Params) -> dict:
     eval_levels = fit_category_levels(history[tr], params.features.categorical)
     X_tr = make_features(history[tr], eval_levels, cols, params.data.timestamp_col)
     X_va = make_features(history[va], eval_levels, cols, params.data.timestamp_col)
-    eval_model = lgb.LGBMClassifier(n_estimators=params.model.max_estimators, **params.model.lgbm_params())
-    eval_model.fit(
-        X_tr, y[tr],
-        eval_set=[(X_va, y[va])], eval_metric="average_precision",
-        callbacks=[lgb.early_stopping(params.model.early_stopping_rounds, verbose=False)],
-    )
+    eval_model = fit_early_stopped(X_tr, y[tr], X_va, y[va], params)
     n_trees = int(eval_model.best_iteration_)
 
     # --- 2. Final model: all labelled data, more trees, recent months up-weighted

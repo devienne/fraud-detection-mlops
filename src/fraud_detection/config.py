@@ -21,10 +21,14 @@ TRAINING_INFO_PATH = MODELS_DIR / "training_info.json"
 POLICY_PATH = MODELS_DIR / "policy.json"
 METADATA_PATH = MODELS_DIR / "metadata.json"
 REFERENCE_PATH = MODELS_DIR / "reference.json"        # training-time distributions + performance baseline
+CHALLENGER_DIR = MODELS_DIR / "challenger"            # retrained candidates; never overwrite the champion
+DEPLOY_DIR = PROJECT_ROOT / "deploy"                  # what the API serves, exported from the MLflow registry:
+                                                      # deploy/champion (decides) and deploy/challenger (shadow)
 
 # Live operation (not versioned, git-ignored): the API's prediction log and the scheduled monitor's outputs
 LOGS_DIR = PROJECT_ROOT / "logs"
 PREDICTION_LOG_PATH = LOGS_DIR / "predictions.jsonl"                 # written by the API
+SHADOW_LOG_PATH = LOGS_DIR / "shadow.jsonl"                           # written by the API in shadow mode
 MONITORING_REPORT_PATH = LOGS_DIR / "monitoring" / "monitoring.json"
 HEARTBEAT_PATH = LOGS_DIR / "monitoring" / "heartbeat.json"
 
@@ -131,6 +135,18 @@ class MonitoringConfig(BaseModel):
         return self
 
 
+class RetrainConfig(BaseModel):
+    holdout_days: int = Field(ge=1)
+    validation_days: int = Field(ge=1)
+    train_window_days: int = Field(ge=1)
+    recent_days: int = Field(ge=0)
+    recent_weight: float = Field(ge=1)
+    min_pr_auc_gain: float = Field(ge=0)
+    bootstrap_samples: int = Field(ge=50)
+    max_segment_recall_drop: float = Field(gt=0, lt=1)
+    max_false_block_rate_increase: float = Field(ge=0, lt=1)
+
+
 class MlflowConfig(BaseModel):
     tracking_uri: str
     experiment: str
@@ -154,6 +170,7 @@ class Params(BaseModel):
     policy: PolicyConfig
     quality_gate: QualityGateConfig
     monitoring: MonitoringConfig
+    retrain: RetrainConfig
     mlflow: MlflowConfig
 
     @model_validator(mode="after")

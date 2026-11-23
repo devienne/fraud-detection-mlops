@@ -43,6 +43,31 @@ SCORING_SECONDS = Histogram(
     ["endpoint"], buckets=(0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0))
 
 
+# --- shadow mode: the challenger scores the same traffic but never decides
+SHADOW_INFO = Gauge(
+    "fraud_shadow_model_info", "Model running in shadow mode (value 1); absent when shadow mode is off.",
+    ["model_version"])
+SHADOW_COMPARISONS = Counter(
+    "fraud_shadow_comparisons", "Champion decision vs what the shadow model would have decided.",
+    ["champion_decision", "shadow_decision"])
+SHADOW_ERRORS = Counter("fraud_shadow_errors", "Shadow scoring failures (the champion's answer is unaffected).")
+SHADOW_SECONDS = Histogram(
+    "fraud_shadow_scoring_seconds", "Shadow scoring time (runs after the response is sent).",
+    buckets=(0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0))
+
+
+def set_shadow_info(version: str | None) -> None:
+    SHADOW_INFO.clear()
+    if version is not None:
+        SHADOW_INFO.labels(model_version=version).set(1)
+
+
+def record_shadow(champion_decisions: Sequence[str], shadow_decisions: Sequence[str], seconds: float) -> None:
+    SHADOW_SECONDS.observe(seconds)
+    for c, s in zip(champion_decisions, shadow_decisions, strict=True):
+        SHADOW_COMPARISONS.labels(champion_decision=c, shadow_decision=s).inc()
+
+
 def set_model_info(version: str) -> None:
     MODEL_INFO.clear()                      # exactly one version reported per process
     MODEL_INFO.labels(model_version=version).set(1)

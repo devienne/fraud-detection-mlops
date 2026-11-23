@@ -11,8 +11,15 @@ services:
     build: .
     image: fraud-api:latest
     ports: ["8000:8000"]
+    environment:
+      # Serve what the MLflow registry says: `python -m fraud_detection.promote init` exports the
+      # champion to deploy/champion; `promote register` exports the challenger for shadow mode.
+      FRAUD_MODEL_DIR: /app/deploy/champion
+      FRAUD_SHADOW_MODEL_DIR: /app/deploy/challenger   # empty folder -> shadow mode off
+      FRAUD_SHADOW_SAMPLE_RATE: "0.2"      # shadow every request halves throughput in one process: sample it
     volumes:
-      - ./logs:/app/logs                   # prediction log on the host, for the monitoring job
+      - ./logs:/app/logs                   # prediction + shadow logs on the host, for the monitoring job
+      - ./deploy:/app/deploy:ro            # released bundles; after promote/rollback: docker compose restart api
     restart: unless-stopped
 
   prometheus:

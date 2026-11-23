@@ -48,6 +48,9 @@ Every monitor-job alert carries its own `message` and `action`; the entries belo
 | **Review rate** | warn ≥ 5%, alert ≥ 10%; January ≈ 2.5% | As above; also the analysts' workload | Same as above | Warn the analyst team about queue size. |
 | **Unseen categories** per transaction | warn ≥ 2%, alert ≥ 10% | A new city or merchant launched; spelling or encoding changes upstream (for example "SÃ£o Paulo" instead of "São Paulo") | The monitor job's `top_moves` for `cidade` and `nome_estabelecimento` | Encoding bug: fix it upstream. Genuinely new values: they're scored as unknown, so include them in the next training. |
 | **Score percentiles** move | No fixed threshold; compare with the reference | Same as input drift or block rate | p90 and p99 move first | Follow the input drift entry. |
+| **Shadow errors** (`fraud_shadow_errors_total` rising) | Any | The challenger's bundle is incompatible, or it crashes on some inputs | API logs ("shadow scoring failed") | Customers are unaffected: the champion answers. Do not promote this challenger; fix and re-register it. |
+| **Shadow disagreement** (`fraud_shadow_comparisons_total`) | Agreement well below what the approval report suggested | The challenger behaves differently on live traffic than on the holdout | `python -m fraud_detection.monitoring shadow`: which decisions move? | Pause the promotion and bring the agreement matrix to the approver. |
+| **Wrong model after a release** | Version on the dashboard ≠ the registry `champion` | Forgot to restart after promote or rollback; wrong bundle exported | `python -m fraud_detection.promote status` vs `/model-info` | `docker compose restart api`. If the new champion misbehaves: `promote rollback --reason "<why>"`, then restart. |
 
 ### Monitor job (`logs/monitoring/monitoring.json`)
 
@@ -91,6 +94,12 @@ python -m fraud_detection.monitoring reference
 
 # Rehearse the December 2025 incident
 python scripts/drift_drill.py
+
+# Releases (MLflow aliases; restart the API after promote / rollback)
+python -m fraud_detection.promote status                          # champion, challenger, previous
+python -m fraud_detection.monitoring shadow                       # challenger vs champion on live traffic
+python -m fraud_detection.promote rollback --reason "block rate spike after release"
+docker compose restart api
 ```
 
 **Scheduling.** The live monitor is a recurring job, not a pipeline stage. Run it hourly:
